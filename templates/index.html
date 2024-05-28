@@ -9,8 +9,8 @@
         <button id="createLobbyBtn">Create Lobby</button>
         <dialog id="createLobbyDialog">
             <form id="createLobbyForm" onsubmit="getFormAction(this)" method="post">
-                <label for="lobbyCodeInp">Lobby entry code: </label>
-                <input type="hidden" id="lobbyCodeInp" name="lobbyCode" value="">
+                <label for="lobbyCodeHdn">Lobby entry code: </label>
+                <input type="hidden" id="lobbyCodeHdn" name="lobbyCode" value="">
                 <fieldset>    
                     <label for="numberOfQuestions">Wie viele Fragen sollen gestellt werden?</label>
                     <br>
@@ -43,6 +43,12 @@
                   </menu>
             </form>
         </dialog>
+
+        <form id="joinLobbyForm" onsubmit="return getFormAction(this)" method="post">
+            <label for="joinLobbyCodeInp"></label>
+            <input type="text" name="joinLobbyCodeInp" id="joinLobbyCodeInp" blaceholder="Lobby code eingeben">
+            <button type="submit">Lobby beitreten</button>
+        </form>
 
         <script src="../static/script.js"></script>
     </body>
