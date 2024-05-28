@@ -1,9 +1,6 @@
 from dataclasses import dataclass
-from pickletools import read_uint1
 from time import time
 import copy
-
-from app import lobby
 
 class Spieler:
     def __init__(self, nickname: str, id: int) -> None:
@@ -182,3 +179,4 @@ class GameState:
             if (g.id == id):
                 return g
         raise Exception("Game not found")
+    
