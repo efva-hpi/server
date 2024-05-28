@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-from pickletools import read_uint1
+import re
 from time import time
 import copy
-
-from app import lobby
+from types import NoneType
+from typing import Optional
 
 class Spieler:
     def __init__(self, nickname: str, id: int) -> None:
@@ -150,35 +150,40 @@ class GameState:
         self.id_counter += 1
         return True
 
-    def get_code(self, id: int) -> str:
+    def get_code(self, id: int) -> Optional[str]:
         for l in self.lobbies:
             if (l.id == id): return l.code
-        return ""
+        return None
     
-    def get_id(self, code: str) -> int:
+    def get_id(self, code: str) -> Optional[int]:
         for l in self.lobbies:
             if (l.code == code): return l.id
-        raise Exception("Lobby not found")
+        return None
     
-    def get_lobby_by_id(self, id: int) -> Lobby:
+    def get_lobby_by_id(self, id: int) -> Optional[Lobby]:
         for l in self.lobbies:
             if (l.id == id): return l
-        raise Exception("Lobby not found")
+        return None
 
-    def get_lobby_by_code(self, code: str) -> Lobby:
+    def get_lobby_by_code(self, code: str) -> Optional[Lobby]:
         for l in self.lobbies:
             if (l.code == code): return l
-        raise Exception("Lobby not found")
+        return None
+        #raise Exception("Lobby not found")
     
-    def start_game(self, id: int):
+    def start_game(self, id: int) -> bool:
         """
         Starts a game for a given lobby id
         """
         lobby = self.get_lobby_by_id(id)
-        self.games.append(lobby.start_game())
+        if lobby:
+            self.games.append(lobby.start_game())
+            return True
+        else: return False
     
-    def get_game_by_id(self, id: int) -> Game:
+    def get_game_by_id(self, id: int) -> Optional[Game]:
         for g in self.games:
             if (g.id == id):
                 return g
-        raise Exception("Game not found")
+        return None
+    
