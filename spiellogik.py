@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import re
 from time import time
 import copy
 from types import NoneType
@@ -170,12 +171,15 @@ class GameState:
         return None
         #raise Exception("Lobby not found")
     
-    def start_game(self, id: int):
+    def start_game(self, id: int) -> bool:
         """
         Starts a game for a given lobby id
         """
         lobby = self.get_lobby_by_id(id)
-        self.games.append(lobby.start_game())
+        if lobby:
+            self.games.append(lobby.start_game())
+            return True
+        else: return False
     
     def get_game_by_id(self, id: int) -> Optional[Game]:
         for g in self.games:
