@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>efva - eine Frage, vier Antworten</title>
+        <link rel="stylesheet" href="../static/style.css">
+    </head>
+    <body>
+        <h1>efva - eine Frage, vier Antworten</h1>
+        <button id="createLobbyBtn">Create Lobby</button>
+        <dialog id="createLobbyDialog">
+            <form id="createLobbyForm" onsubmit="getFormAction(this)" method="post">
+                <label for="lobbyCodeInp">Lobby entry code: </label>
+                <input type="hidden" id="lobbyCodeInp" name="lobbyCode" value="">
+                <fieldset>    
+                    <label for="numberOfQuestions">Wie viele Fragen sollen gestellt werden?</label>
+                    <br>
+                    <input type="number" id="numberOfQuestions" name="numberOfQuestions" min="3" max="20" required>
+                    <br>
+                    <label for="categorySelect">Wähle eine Kategorie aus:</label>
+                    <br>
+                    <select name="categorySelect" id="categorySelect">
+                        <option value="0" selected>Alle</option>
+                    </select>
+                    <br>
+                    <label for="difficultySelect">Wähle die Schwierigkeit der Fragen:</label>
+                    <br>
+                    <select name="difficultySelect" id="difficultySelect">
+                        <option value="0" selected>Egal</option>
+                        <option value="easy" selected>Einfach</option>
+                        <option value="medium" selected>Mittel</option>
+                        <option value="hard" selected>Schwer</option>
+                    </select>
+                    <br>
+                    <label for="gamemodeSelect">Wähle den Spielmodus:</label>
+                    <br>
+                    <select name="gamemodeSelect" id="gamemodeSelect">
+                        <option value="multiple" selected>Multiple Choice</option>
+                    </select>
+                </fieldset>
+                <menu>
+                    <button type="submit">Lobby erstellen</button>
+                    <button type="button" id="cancelLobbyDialogBtn">Abbrechen</button>
+                  </menu>
+            </form>
+        </dialog>
+
+        <script src="../static/script.js"></script>
+    </body>
+</html>
