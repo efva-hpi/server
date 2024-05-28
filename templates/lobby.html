@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>{{lobbyInfo.get("lobbyCode")}}</title>
+        <title>{{lobbyCode}}</title>
         <link rel="stylesheet" href="../static/style.css">
     </head>
     <body>
-        <h1>Lobby code: {{lobbyInfo.get("lobbyCode")}}</h1>
+        <h1>Lobby code: {{lobbyCode}}</h1>
         <h2>Lobby einstellungen:</h2>
         <ul>
-            <li>Fragen: {{lobbyInfo.get("numberOfQuestions")}}</li>
-            <li>Kategorie: {{lobbyInfo.get("categorySelect")}}</li>
-            <li>Schwierigkeit: {{lobbyInfo.get("difficultySelect")}}</li>
-            <li>Spielmodus: {{lobbyInfo.get("gamemodeSelect")}}</li>
+            <li>Fragen: {{lobbyInfo.n_questions}}</li>
+            <li>Kategorie: {{lobbyInfo.category}}</li>
+            <li>Schwierigkeit: {{lobbyInfo.difficulty}}</li>
+            <li>Spielmodus: {{lobbyInfo.game_type}}</li>
         </ul>
         <button ></button>
     </body>

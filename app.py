@@ -6,19 +6,26 @@ from spiellogik import *
 app = Flask(__name__)
 
 gs: GameState = GameState()
+validLobbyKey: bool = True
 
 @app.route("/")
 def main_page():
-    return render_template("index.html")
+    return render_template("index.html", validLobbyKey)
 
-@app.route("/lobby/<id>", methods=["GET", "POST"])
-def lobby(id):
+@app.route("/lobby/<code>", methods=["GET", "POST"])
+def lobby(code):
     if (request.method == "POST"):
         form = request.form
         if (form.get("lobbyFormType") == "create"):
-            return redirect("lobby.html", lobbyInfo = form)
+            game_settings = GameSettings(form.get("numberOfQuestions"), form.get("category"), form.get("difficulty"), form.get("gamemode"))
+            gs.create_lobby(code, game_settings)
+            return redirect(f"/lobby/{code}")
         elif (form.get("lobbyFormType") == "join"):
             #return render_template("lobby.html", lobbyInfo = form)
-            return redirect("/")
-    elif (request.method == "POST"):
-        render_template("lobby.html", )
+            currentLobby = gs.get_lobby_by_code(code)
+            if(currentLobby is None):
+                redirect("/")
+            return redirect(f"/lobby/{code}")
+    elif (request.method == "GET"):
+        currentLobby = gs.get_lobby_by_code(code)
+        return render_template("lobby.html", lobbyInfo = currentLobby.game_settings, lobbyCode = currentLobby.code)
