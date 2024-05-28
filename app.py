@@ -1,8 +1,11 @@
 from crypt import methods
 from flask import Flask, render_template, request, redirect
 from markupsafe import escape
+from spiellogik import *
 
 app = Flask(__name__)
+
+gs: GameState = GameState()
 
 @app.route("/")
 def main_page():
