@@ -1,5 +1,5 @@
 from crypt import methods
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 from markupsafe import escape
 
 app = Flask(__name__)
@@ -12,9 +12,10 @@ def main_page():
 def lobby(id):
     if (request.method == "POST"):
         form = request.form
-        code = form.get("lobbyCode")
-        n_questions = form.get("numberOfQuestions")
-        category = form.get("categorySelect")
-        difficulty = form.get("difficultySelect")
-        gamemode = form.get("gamemodeSelect")
-    return f"<p>Lobby {code}</p><p>Fragen: {n_questions}</p><p>Kategorie: {category}</p><p>Schwierigkeit: {difficulty}</p><p>Spielmodus: {gamemode}</p>"
+        if (form.get("lobbyFormType") == "create"):
+            return redirect("lobby.html", lobbyInfo = form)
+        elif (form.get("lobbyFormType") == "join"):
+            #return render_template("lobby.html", lobbyInfo = form)
+            return redirect("/")
+    elif (request.method == "POST"):
+        render_template("lobby.html", )

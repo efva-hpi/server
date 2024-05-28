@@ -9,6 +9,7 @@
         <button id="createLobbyBtn">Create Lobby</button>
         <dialog id="createLobbyDialog">
             <form id="createLobbyForm" onsubmit="getFormAction(this)" method="post">
+                <input type="hidden" name="lobbyFormType" value="create">
                 <label for="lobbyCodeHdn">Lobby entry code: </label>
                 <input type="hidden" id="lobbyCodeHdn" name="lobbyCode" value="">
                 <fieldset>    
@@ -45,8 +46,9 @@
         </dialog>
 
         <form id="joinLobbyForm" onsubmit="return getFormAction(this)" method="post">
+            <input type="hidden" name="lobbyFormType" value="join">
             <label for="joinLobbyCodeInp"></label>
-            <input type="text" name="joinLobbyCodeInp" id="joinLobbyCodeInp" blaceholder="Lobby code eingeben">
+            <input type="text" name="joinLobbyCodeInp" id="joinLobbyCodeInp" placeholder="Lobby code eingeben">
             <button type="submit">Lobby beitreten</button>
         </form>
 
