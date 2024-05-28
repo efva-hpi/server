@@ -1,7 +1,5 @@
 from dataclasses import dataclass
-from telnetlib import GA
 from time import time
-import string
 import copy
 
 class Spieler:
@@ -24,9 +22,9 @@ class GameSettings:
 
 @dataclass 
 class Question:
-    question: str = "Hallo Welt?"
-    answers: list[str] = ["1", "2", "3", "4"]
-    correct_answer: int = 0
+    question: str
+    answers: list[str]
+    correct_answer: int
 
 @dataclass
 class Answer:

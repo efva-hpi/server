@@ -5,6 +5,8 @@ from spiellogik import *
 
 app = Flask(__name__)
 
+gs: GameState = GameState()
+
 @app.route("/")
 def main_page():
     return render_template("index.html")
