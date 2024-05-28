@@ -1,6 +1,7 @@
 from crypt import methods
 from flask import Flask, render_template, request
 from markupsafe import escape
+from spiellogik import *
 
 app = Flask(__name__)
 
