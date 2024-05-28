@@ -151,3 +151,21 @@ class GameState:
         for l in self.lobbies:
             if (l.id == id): return l.code
         return ""
+    
+    def get_lobby_by_id(self, id: int) -> Lobby:
+        for l in self.lobbies:
+            if (l.id == id): return l
+        raise Exception("Lobby not found")
+    
+    def start_game(self, id: int):
+        """
+        Starts a game for a given lobby id
+        """
+        lobby = self.get_lobby_by_id(id)
+        self.games.append(lobby.start_game())
+    
+    def get_game_by_id(self, id: int) -> Game:
+        for g in self.games:
+            if (g.id == id):
+                return g
+        raise Exception("Game not found")
