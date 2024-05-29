@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from math import exp
 from time import time
 import copy
 from typing import Optional
@@ -21,6 +22,7 @@ class GameSettings:
     category: int = 0
     difficulty: str = "easy"
     game_type: str = "multiple choice"
+    max_time_question = 15 # in seconds
 
 @dataclass 
 class Question:
@@ -42,9 +44,82 @@ class Game:
         self.game_settings: GameSettings = game_settings
 
         self.questions: list[Question] = self.get_questions()
+        self.question_timestamps: list[Optional[int]] = [None for i in range(len(self.questions))]
         self.current_question = 0
-        #self.answers: list[dict[int, int]] = [{} for i in range(len(self.questions))]
+
         self.answers: list[list[Answer]] = [[] for i in range(len(self.questions))]
+
+    def _calculate_points_time(self, question_time: Optional[int], answer_time: Optional[int], correct_answer: bool) -> int:
+        """
+        Calculates the points using the answer and time to answer.
+        """
+        if not (question_time and answer_time): raise Exception("Time is none")
+        if (question_time > answer_time): raise Exception("Invalid time")
+    
+        time_taken_seconds = (answer_time - question_time) / 10e6 # time is measeured in ns
+        max_time = self.game_settings.max_time_question
+
+        if time_taken_seconds > max_time: return 0 # answer was too late
+
+        points: int = 0
+        if correct_answer: 
+            points += 500 # a correct answer gives you 500 points
+
+            if time_taken_seconds < 10: # if you answered fast enough, you get more points
+                 points += round((1.0 - time_taken_seconds/max_time) * 400) # you can get up to 400 more points
+
+        return points
+
+    def _check_question(self, question: Question, answer: Answer) -> bool:
+        """
+        Checks if an answer for a question is correct.
+        """
+        return answer in question.answers
+
+    def _calculate_points_question_player(self, question_id: int, player: Spieler) -> int:
+        """
+        Calculates the points for a given player for a given question
+        """
+        if question_id >= len(self.questions): raise Exception("Invalid question")
+        timestamp: Optional[int] = self.question_timestamps[question_id]
+        if not timestamp: raise Exception("Invalid question time")
+        
+        answer: Optional[Answer] = self.get_answer_player(question_id, player)
+        if not answer: raise Exception("Player has no answer for the question")
+
+        question: Question = self.questions[question_id]
+        return self._calculate_points_time(timestamp, answer.time_stamp, self._check_question(question, answer))
+
+    def calculate_points_question(self, question: int) -> list[int]:
+        """
+        Returns the points for the n'th question for all players.
+        """
+        points: list[int] = [self._calculate_points_question_player(question, p) for p in self.player_list]
+        return points
+    
+    def _add_lists(self, a: list[int], b: list[int]) -> list[int]:
+        if len(a) != len(b): raise Exception("Lists are not equal length")
+        return [a[i]+b[i] for i in range(len(a))]
+
+    def calculate_total_points(self) -> list[int]:
+        """
+        Returns the total points for all players and all currently answered questions
+        """
+        points: list[int] = [0 for p in self.player_list]
+        for i in range(self.current_question+1):
+            points = self._add_lists(points, self.calculate_points_question(i))
+
+        return points
+
+    def get_answer_player(self, question_id: int, player: Spieler) -> Optional[Answer]:
+        """
+        Returns the answer object for a given player and question id.
+        Can be none.
+        """
+        for a in self.answers[question_id]:
+            if (a.player == player): return a
+        return None
+
 
     def get_questions(self) -> list[Question]:
         """
@@ -260,4 +335,3 @@ class GameState:
             if (g.id == id):
                 return g
         return None
-    
