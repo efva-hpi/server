@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import re
 from time import time
 import copy
+from tkinter.messagebox import RETRY
 from types import NoneType
 from typing import Optional
 
@@ -9,6 +10,7 @@ class Spieler:
     def __init__(self, nickname: str, id: int) -> None:
         self.nickname: str = nickname
         self.id: int = id
+        self.score: int = 0
 
 @dataclass
 class GameSettings:
@@ -48,6 +50,9 @@ class Game:
         self.answers: list[list[Answer]] = [[] for i in range(len(self.questions))]
 
     def get_questions(self) -> list[Question]:
+        """
+        Fetches all questions from the question database. NOT IMPLEMENTED!
+        """
         # TODO: Implement
         time.sleep(0.2)
         return [Question("Wie spät?", ["Dumm1", "Dumm2", "Schlau", "Dumm3"], 2),
@@ -56,7 +61,8 @@ class Game:
     
     def all_answered(self) -> bool:
         """
-        Checks whether all players have given an answer to the current question
+        Checks whether all players have given an answer to the current question.
+        Returns true if successful.
         """
         answers = self.answers[self.current_question]
         for player in self.player_list:
@@ -65,6 +71,10 @@ class Game:
         return True
 
     def answer(self, player:Spieler, answer:int) -> bool:
+        """
+        Submits an answer for a given player object.
+        Returns true if successful.
+        """
         if (player in self.player_list):
             a: Answer = Answer(player, answer, time.time_ns())
             if not (a in self.answers[self.current_question]):
@@ -73,6 +83,10 @@ class Game:
         return False
     
     def next_question(self) -> bool:
+        """
+        Switches to the next question, if all players submitted an answer.
+        Returns true if successful.
+        """
         if self.all_answered(): 
             if self.current_question < len(self.questions)-1:
                 self.current_question += 1
@@ -80,6 +94,9 @@ class Game:
         return False
 
     def get_current_question(self) -> Question:
+        """
+        Returns the current question object.
+        """
         return self.questions[self.current_question]
     
 
@@ -94,24 +111,41 @@ class Lobby:
         self.code = code
 
     def add_player(self, player: Spieler) -> bool:
+        """
+        Adds an existing player to the lobby.
+        Returns true if successful.
+        """
         if not (player in self._player_list):   
             self._player_list.append(player)
             return True
         return False
     
     def remove_player(self, player: Spieler) -> bool:
+        """
+        Removes an player from the lobby.
+        Returns true if successful.
+        """
         if (player in self._player_list):
             self._player_list.remove(player)
             return True
         return False
     
     def get_players(self) -> list[Spieler]:
+        """
+        Returns a list of all player objects.
+        """
         return self._player_list
     
     def get_player_list(self) -> list[str]:
+        """
+        Returns a list of all nicknames.
+        """
         return [s.nickname for s in self._player_list]
     
     def get_player_ids(self) -> list[int]:
+        """
+        Returns a list of all ids.
+        """
         return [s.id for s in self._player_list]
     
 #    def create_invite_code(self) -> str:
@@ -139,10 +173,33 @@ class Lobby:
 class GameState:
     def __init__(self) -> None:
         self.id_counter = 0
+        self.player_id_counter = 0
         self.lobbies: list[Lobby] = []
         self.games: list[Game] = []
+        self.players: list[Spieler] = []
+
+    def check_nickname(self, nickname: str) -> bool:
+        """
+        Checks if a given nickname is free
+        """
+        for p in self.players: 
+            if p.nickname == nickname: return True
+        return False
+
+    def create_player(self, nickname: str) -> bool:
+        """
+        Creates a new player
+        """
+        if (self.check_nickname(nickname)): return False
+        self.players.append(Spieler(nickname, self.player_id_counter))
+        self.player_id_counter += 1
+        return True
     
     def create_lobby(self, code: str, gameSettings: GameSettings) -> bool:
+        """
+        Creates a new lobby with a lobby code and game settings.
+        Returns true if successful.
+        """
         for l in self.lobbies:
             if l.code == code: return False
         
@@ -151,29 +208,45 @@ class GameState:
         return True
 
     def get_code(self, id: int) -> Optional[str]:
+        """
+        Returns the lobby code for a given lobby id.
+        Can be none!
+        """
         for l in self.lobbies:
             if (l.id == id): return l.code
         return None
     
     def get_id(self, code: str) -> Optional[int]:
+        """
+        Returns the id for a given lobby code.
+        Can be none!
+        """
         for l in self.lobbies:
             if (l.code == code): return l.id
         return None
     
     def get_lobby_by_id(self, id: int) -> Optional[Lobby]:
+        """
+        Returns the lobby object for a given id.
+        Can be none!
+        """
         for l in self.lobbies:
             if (l.id == id): return l
         return None
 
     def get_lobby_by_code(self, code: str) -> Optional[Lobby]:
+        """
+        Returns the lobby object for a given code.
+        Can be none!
+        """
         for l in self.lobbies:
             if (l.code == code): return l
         return None
-        #raise Exception("Lobby not found")
     
     def start_game(self, id: int) -> bool:
         """
-        Starts a game for a given lobby id
+        Starts a game for a given lobby id.
+        Returns true if successful.
         """
         lobby = self.get_lobby_by_id(id)
         if lobby:
@@ -182,6 +255,10 @@ class GameState:
         else: return False
     
     def get_game_by_id(self, id: int) -> Optional[Game]:
+        """
+        Returns the game object for a given id (identical to the corresponding lobby id).
+        Can be none.
+        """
         for g in self.games:
             if (g.id == id):
                 return g
