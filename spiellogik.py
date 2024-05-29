@@ -1,9 +1,6 @@
 from dataclasses import dataclass
-import re
 from time import time
 import copy
-from tkinter.messagebox import RETRY
-from types import NoneType
 from typing import Optional
 
 class Spieler:
