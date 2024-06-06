@@ -1,0 +1,75 @@
+/* Grundlegende Stile für den Wrapper */
+#wrapper {
+    width: 35%; 
+    margin: 31vh 0 0 0; 
+    background-color: rgba(255, 255, 255, 0.8); 
+    border-radius: 10px;
+    padding: 30px; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    height: 100%;
+}
+
+/* CreateLobby */
+#createLobbyBtn {
+    width: 100%;
+    max-width: 80vw; 
+}
+
+#joinLobbyForm {
+    width: 100%;
+    max-width: 80vw; 
+}
+
+#joinLobbyCodeInp,
+#joinLobbyForm button {
+    width: 100%; 
+    box-sizing: border-box; 
+}
+
+/* Anpassung der Breite für das Anzahl der Fragen Feld und der Select-Elemente */
+fieldset {
+    width: 94%;
+}
+
+#numberOfQuestions,
+#categorySelect,
+#difficultySelect,
+#gamemodeSelect {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Spezielle Buttonstile */
+button[type="button"]#cancelLobbyDialogBtn {
+    background-color: #ff4d4d;
+}
+
+button[type="button"]#cancelLobbyDialogBtn:hover {
+    background-color: #e60000;
+}
+
+button[type="submit"]#submitLobbyDialogBtn {
+    background-color: #4CAF50;
+}
+
+/* Menü-Stile für die korrekte Ausrichtung */
+menu {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0;
+    gap: 10px;
+}
+
+#submitLobbyDialogBtn {
+    flex: 7;
+    box-sizing: border-box;
+}
+
+#cancelLobbyDialogBtn {
+    flex: 3;
+    box-sizing: border-box;
+}

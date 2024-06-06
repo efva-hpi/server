@@ -3,54 +3,66 @@
     <head>
         <title>efva - eine Frage, vier Antworten</title>
         <link rel="stylesheet" href="../static/style.css">
+        <link rel="stylesheet" href="../static/index.css">
     </head>
     <body>
-        <h1>efva - eine Frage, vier Antworten</h1>
-        <button id="createLobbyBtn">Create Lobby</button>
-        <dialog id="createLobbyDialog">
-            <form id="createLobbyForm" onsubmit="getFormAction(this)" method="post">
-                <input type="hidden" name="lobbyFormType" value="create">
-                <label for="lobbyCodeHdn">Lobby entry code: </label>
-                <input type="hidden" id="lobbyCodeHdn" name="lobbyCode" value="">
-                <fieldset>    
-                    <label for="numberOfQuestions">Wie viele Fragen sollen gestellt werden?</label>
-                    <br>
-                    <input type="number" id="numberOfQuestions" name="numberOfQuestions" min="3" max="20" value="3" required>
-                    <br>
-                    <label for="categorySelect">Wähle eine Kategorie aus:</label>
-                    <br>
-                    <select name="category" id="categorySelect">
-                        <option value="0" selected>Alle</option>
-                    </select>
-                    <br>
-                    <label for="difficultySelect">Wähle die Schwierigkeit der Fragen:</label>
-                    <br>
-                    <select name="difficulty" id="difficultySelect">
-                        <option value="0" selected>Egal</option>
-                        <option value="easy" selected>Einfach</option>
-                        <option value="medium" selected>Mittel</option>
-                        <option value="hard" selected>Schwer</option>
-                    </select>
-                    <br>
-                    <label for="gamemodeSelect">Wähle den Spielmodus:</label>
-                    <br>
-                    <select name="gamemode" id="gamemodeSelect">
-                        <option value="multiple" selected>Multiple Choice</option>
-                    </select>
-                </fieldset>
-                <menu>
-                    <button type="submit">Lobby erstellen</button>
-                    <button type="button" id="cancelLobbyDialogBtn">Abbrechen</button>
-                  </menu>
-            </form>
-        </dialog>
 
-        <form id="joinLobbyForm" onsubmit="return getFormAction(this)" method="post">
-            <input type="hidden" name="lobbyFormType" value="join">
-            <label for="joinLobbyCodeInp"></label>
-            <input type="text" name="joinLobbyCodeInp" id="joinLobbyCodeInp" placeholder="Lobby code eingeben">
-            <button type="submit">Lobby beitreten</button>
-        </form>
+        <div id="background-mosaic">
+            <img src="../static/_cd9d8874-3a7c-471e-8882-eaa5aa93b916.jpeg" alt="Bild 1">
+            <img src="../static/_04c89033-d506-4b7f-a6ab-9a4505c75e48.jpeg" alt="Bild 2">
+            <img src="../static/_3ed42ef8-05fa-48a5-b0b3-e854016b7901.jpeg" alt="Bild 3">
+            <img src="../static/_cd9d8874-3a7c-471e-8882-eaa5aa93b916.jpeg" alt="Bild 4">
+        </div>
+        
+        <div id="wrapper">
+            <h1>efva - eine Frage, vier Antworten</h1>
+            <button id="createLobbyBtn">Create Lobby</button>
+            <dialog id="createLobbyDialog">
+                <form id="createLobbyForm" onsubmit="getFormAction(this)" method="post">
+                    <input type="hidden" name="lobbyFormType" value="create">
+                    <label for="lobbyCodeHdn">Lobby entry code: </label>
+                    <input type="hidden" id="lobbyCodeHdn" name="lobbyCode" value="">
+                    <fieldset>    
+                        <label for="numberOfQuestions">Wie viele Fragen sollen gestellt werden?</label>
+                        <br>
+                        <input type="number" id="numberOfQuestions" name="numberOfQuestions" min="3" max="20" value="3" required>
+                        <br>
+                        <label for="categorySelect">Wähle eine Kategorie aus:</label>
+                        <br>
+                        <select name="category" id="categorySelect">
+                            <option value="0" selected>Alle</option>
+                        </select>
+                        <br>
+                        <label for="difficultySelect">Wähle die Schwierigkeit der Fragen:</label>
+                        <br>
+                        <select name="difficulty" id="difficultySelect">
+                            <option value="0" selected>Egal</option>
+                            <option value="easy" selected>Einfach</option>
+                            <option value="medium" selected>Mittel</option>
+                            <option value="hard" selected>Schwer</option>
+                        </select>
+                        <br>
+                        <label for="gamemodeSelect">Wähle den Spielmodus:</label>
+                        <br>
+                        <select name="gamemode" id="gamemodeSelect">
+                            <option value="multiple" selected>Multiple Choice</option>
+                        </select>
+                    </fieldset>
+                    <menu>
+                        <button type="submit" id="submitLobbyDialogBtn">Lobby erstellen</button>
+                        <button type="button" id="cancelLobbyDialogBtn">Abbrechen</button>
+                      </menu>
+                </form>
+            </dialog>
+
+            <form id="joinLobbyForm" onsubmit="return getFormAction(this)" method="post">
+                <input type="hidden" name="lobbyFormType" value="join">
+                <label for="joinLobbyCodeInp"></label>
+                <input type="text" name="joinLobbyCodeInp" id="joinLobbyCodeInp" placeholder="Lobby code eingeben">
+                <button type="submit">Lobby beitreten</button>
+            </form>
+        </div>
+        
 
         <script src="../static/script.js"></script>
     </body>
