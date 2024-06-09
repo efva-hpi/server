@@ -10,7 +10,7 @@ validLobbyKey: bool = True
 
 @app.route("/")
 def main_page():
-    return render_template("index.html", validLobbyKey)
+    return render_template("index.html", validLobbyKey=validLobbyKey)
 
 @app.route("/lobby/<code>", methods=["GET", "POST"])
 def lobby(code):

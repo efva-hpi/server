@@ -3,6 +3,12 @@ from math import exp
 from time import time
 import copy
 from typing import Optional
+import argon2
+
+
+def hash_password(password: str) -> bytes:
+    return argon2.argon2_hash(password, salt="supergeheim")
+
 
 class Spieler:
     def __init__(self, nickname: str, id: int) -> None:
