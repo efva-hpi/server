@@ -4,10 +4,11 @@ from time import time
 import copy
 from typing import Optional
 import argon2
+import bcrypt
 
 
-def hash_password(password: str) -> bytes:
-    return argon2.argon2_hash(password, salt="supergeheim")
+def hash_password(password: str, username: str) -> bytes:
+    return argon2.argon2_hash(password, salt=username+"uilgfguidldsfklhufuldfslk")
 
 
 class Spieler:
