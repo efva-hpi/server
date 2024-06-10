@@ -18,7 +18,7 @@
             <h1>efva - eine Frage, vier Antworten</h1>
             <button id="createLobbyBtn">Create Lobby</button>
             <dialog id="createLobbyDialog">
-                <form id="createLobbyForm" onsubmit="getFormAction(this)" method="post">
+                <form id="createLobbyForm" onsubmit="getFormAction(this)" method="POST">
                     <input type="hidden" name="lobbyFormType" value="create">
                     <label for="lobbyCodeHdn">Lobby entry code: </label>
                     <input type="hidden" id="lobbyCodeHdn" name="lobbyCode" value="">
@@ -55,14 +55,12 @@
                 </form>
             </dialog>
 
-            <form id="joinLobbyForm" onsubmit="return getFormAction(this)" method="post">
-                <input type="hidden" name="lobbyFormType" value="join">
-                <label for="joinLobbyCodeInp"></label>
-                <input type="text" name="joinLobbyCodeInp" id="joinLobbyCodeInp" placeholder="Lobby code eingeben">
-                <button type="submit">Lobby beitreten</button>
-            </form>
-        </div>
-        
+        <form id="joinLobbyForm" onsubmit="return getFormAction(this)" method="POST">
+            <input type="hidden" name="lobbyFormType" value="join">
+            <label for="joinLobbyCodeInp">{% if not validLobbyKey%}Bitte einen gültigen Lobby code eingeben.<br>{% endif %}</label>
+            <input type="text" name="joinLobbyCodeInp" id="joinLobbyCodeInp" placeholder="Lobby code eingeben">
+            <button type="submit">Lobby beitreten</button>
+        </form>
 
         <script src="../static/script.js"></script>
     </body>

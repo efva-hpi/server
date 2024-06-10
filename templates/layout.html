@@ -1,0 +1,9 @@
+{% with errors = get_flashed_messages(category_filter=['lobbyCodeError']) %}
+{% if errors %}
+{%- for msg in errors %}
+<p>{{ msg }}</p>
+{% endfor -%}
+{% endif %}
+{% endwith %}
+{% block errorMessages%}
+{% endblock %}

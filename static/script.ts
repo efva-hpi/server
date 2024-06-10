@@ -27,17 +27,17 @@ cancelLobbyDialogBtn?.addEventListener('click', () => {
 })
 
 function getFormAction(form: HTMLFormElement){
-    if(form === createLobbyForm){
+    if(form === createLobbyForm /*|| form === joinLobbyForm*/){
         form.action = `/lobby/${lobbyCode}`;
     }
     if(form === joinLobbyForm){
         let joinCode: string = joinLobbyCodeInp.value;
-        if(/^([A-Z0-9]){6}$/.test(joinCode)){
+        // if(/^([A-Z0-9]){6}$/.test(joinCode)){
             form.action = `/lobby/${joinCode}`;
             return true;
-        }
-        joinLobbyCodeInpLabel.innerHTML = "Bitte einen gültigen Lobby code eingeben.<br>";
-        form.action="";
-        return false;
+        // }
+        // joinLobbyCodeInpLabel.innerHTML = "Bitte einen gültigen Lobby code eingeben.<br>";
+        // form.action="";
+        // return false;
     }
 }

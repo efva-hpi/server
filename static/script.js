@@ -22,17 +22,17 @@ cancelLobbyDialogBtn === null || cancelLobbyDialogBtn === void 0 ? void 0 : canc
     createLobbyDialog.close();
 });
 function getFormAction(form) {
-    if (form === createLobbyForm) {
+    if (form === createLobbyForm /*|| form === joinLobbyForm*/) {
         form.action = "/lobby/".concat(lobbyCode);
     }
     if (form === joinLobbyForm) {
         var joinCode = joinLobbyCodeInp.value;
-        if (/^([A-Z0-9]){6}$/.test(joinCode)) {
-            form.action = "/lobby/".concat(joinCode);
-            return true;
-        }
-        joinLobbyCodeInpLabel.innerHTML = "Bitte einen gültigen Lobby code eingeben.<br>";
-        form.action = "";
-        return false;
+        // if(/^([A-Z0-9]){6}$/.test(joinCode)){
+        form.action = "/lobby/".concat(joinCode);
+        return true;
+        // }
+        // joinLobbyCodeInpLabel.innerHTML = "Bitte einen gültigen Lobby code eingeben.<br>";
+        // form.action="";
+        // return false;
     }
 }
