@@ -11,7 +11,7 @@ gs: GameState = GameState()
 
 @app.route("/")
 def main_page():
-    return render_template("index.html", validLobbyKey=validLobbyKey)
+    return render_template("index.html")
 
 @app.route("/lobby/<code>", methods=["GET", "POST"])
 def lobby(code):
@@ -30,7 +30,7 @@ def lobby(code):
             if(currentLobby is None):
                 print("lobby not found")
                 # validLobbyKey = False
-                flash('Bitte einen gültigen Lobby code eingeben', 'lobbyCodeError')
+                flash('Bitte einen gültigen Lobby code eingeben', 'error')
                 return redirect("/")
             # validLobbyKey = True
             print("lobby found")
