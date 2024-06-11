@@ -57,11 +57,12 @@
 
         <form id="joinLobbyForm" onsubmit="return getFormAction(this)" method="POST">
             <input type="hidden" name="lobbyFormType" value="join">
-            <label for="joinLobbyCodeInp">{% if not validLobbyKey%}Bitte einen gültigen Lobby code eingeben.<br>{% endif %}</label>
-            <input type="text" name="joinLobbyCodeInp" id="joinLobbyCodeInp" placeholder="Lobby code eingeben">
+            <!-- <label for="joinLobbyCodeInp">{% if not validLobbyKey%}Bitte einen gültigen Lobby code eingeben.<br>{% endif %}</label> -->
+            {% include "layout.html" ignore missing %}
+            <input type="text" name="joinLobbyCodeInp" id="joinLobbyCodeInp" placeholder="Lobby code eingeben" required>
             <button type="submit">Lobby beitreten</button>
         </form>
 
-        <script src="../static/script.js"></script>
+        <script src="../static/index.js"></script>
     </body>
 </html>
