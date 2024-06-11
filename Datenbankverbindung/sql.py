@@ -106,3 +106,19 @@ def neueStatistik(benutzername, spielID, punktzahl, platzierung):
     result = execute_insert_query(f"INSERT INTO Statistik VALUES (\'{benutzername}\', {spielID}, {punktzahl}, {platzierung});")
 
     return result
+
+def anzahlSpiele(benutzername):
+    result = execute_select_query(f"SELECT COUNT(spielerbenutzername) FROM Statistik WHERE spielerbenutzername = \'{benutzername}\';")
+
+    return result[0][0]
+
+def anzahlgewonneneSpiel(benutzername):
+    result = execute_select_query(f"SELECT COUNT(spielerbenutzername) FROM Statistik WHERE spielerbenutzername = \'{benutzername}\' AND platzierung = 1;")
+
+    return result[0][0]
+
+def punkteproFrage(benutzername):
+    result = execute_select_query(f"SELECT CAST(SUM(Statistik.punktzahl) AS float)/CAST(SUM(Spiel.fragenanzahl) AS float) FROM Statistik INNER JOIN Spiel ON Statistik.spielID=Spiel.ID WHERE Statistik.spielerbenutzername = \'{benutzername}\';")
+
+    return result
+
