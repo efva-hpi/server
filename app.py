@@ -1,5 +1,5 @@
 from crypt import methods
-from flask import Flask, render_template, request, redirect, flash
+from flask import Flask, render_template, request, redirect, flash, session
 from markupsafe import escape
 from spiellogik import *
 
@@ -11,10 +11,12 @@ gs: GameState = GameState()
 
 @app.route("/")
 def main_page():
+    print(session.get('_flashes', None))
     return render_template("index.html")
 
 @app.route("/lobby/<code>", methods=["GET", "POST"])
 def lobby(code):
+    session.pop('_flashes', None)
     global validLobbyKey
     if (request.method == "POST"):
         print("lobby post")
@@ -28,14 +30,23 @@ def lobby(code):
             print("joinging lobby")
             currentLobby = gs.get_lobby_by_code(code)
             if(currentLobby is None):
-                print("lobby not found")
-                # validLobbyKey = False
-                flash('Bitte einen gültigen Lobby code eingeben', 'error')
-                return redirect("/")
-            # validLobbyKey = True
+                return no_valid_lobby()
             print("lobby found")
             return redirect(f"/lobby/{code}")
     elif (request.method == "GET"):
         print("lobby get")
         currentLobby = gs.get_lobby_by_code(code)
+        if(currentLobby is None):
+            return no_valid_lobby()
+        print("rendering lobby get")
         return render_template("lobby.html", lobbyInfo = currentLobby.game_settings, lobbyCode = currentLobby.code)
+
+@app.route("/lobby/<code>/leave", methods=["GET", "POST"])
+def leave_lobby(code):
+    print("leaving lobby")
+    return redirect("/")
+
+def no_valid_lobby():
+    print("no valid lobby")
+    flash('Bitte einen gültigen Lobby code eingeben', 'error')
+    return redirect("/")
