@@ -1,10 +1,11 @@
 from dataclasses import dataclass
-from math import exp
-from time import time
+from random import randint
+from time import time, sleep
 import copy
 from typing import Optional
 import argon2
 import bcrypt
+import requests
 
 
 def hash_password(password: str, username: str) -> bytes:
@@ -34,6 +35,7 @@ class GameSettings:
 @dataclass 
 class Question:
     question: str
+    category: int
     answers: list[str]
     correct_answer: int
 
@@ -44,13 +46,13 @@ class Answer:
     time_stamp: int
 
 class Game:
-    def __init__(self, players: list[Spieler], id: int, game_settings: GameSettings) -> None:
+    def __init__(self, players: list[Spieler], id: int, game_settings: GameSettings, question_amount: int=10) -> None:
         self.id: int = id
         self.player_list: list[Spieler] = players
 
         self.game_settings: GameSettings = game_settings
-
-        self.questions: list[Question] = self.get_questions()
+        self.question_amount = question_amount
+        self.questions: list[Question] = self.get_questions(question_amount)
         self.question_timestamps: list[Optional[int]] = [None for i in range(len(self.questions))]
         self.current_question = 0
 
@@ -127,17 +129,34 @@ class Game:
             if (a.player == player): return a
         return None
 
-
-    def get_questions(self) -> list[Question]:
+    @staticmethod
+    def get_questions(amount: int, difficulty: str = "", category: int = 0) -> list[Question]:
         """
         Fetches all questions from the question database. NOT IMPLEMENTED!
         """
-        # TODO: Implement
-        time.sleep(0.2)
-        return [Question("Wie spät?", ["Dumm1", "Dumm2", "Schlau", "Dumm3"], 2),
-                Question("Noch ne Frage!", ["Antwort1", "Antwort2", "Antwort3", "Richtig"], 3),
-                Question("???", ["Yes", "Nope1", "Nope2", "Nope3"], 0)]
-    
+        url = "https://opentdb.com/api.php"
+        params = {"amount": amount, "type": "multiple"}
+        if difficulty != "":
+            params.update({"difficulty": difficulty})
+        if category != 0:
+            params.update({"category": category})
+        r = requests.get(url, params=params).json()
+        if r["response_code"] != 0:
+            if r["response_code"] != 5:
+                raise Exception("Invalid response code")
+            else:
+                while r["response_code"] == 5:
+                    sleep(2)
+                    r = requests.get(url, params=params).json()
+        questions = []
+        for q in r["results"]:
+            pos = randint(0, 3)
+            answers = q["incorrect_answers"]
+            answers.insert(pos, q["correct_answer"])
+            questions.append(Question(q["question"], q["category"], answers, pos))
+
+        return questions
+
     def all_answered(self) -> bool:
         """
         Checks whether all players have given an answer to the current question.
