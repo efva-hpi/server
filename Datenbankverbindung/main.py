@@ -33,17 +33,18 @@ jsStatistik = {
     "platzierung": 1
 }
 
-def main(json):
-    match json["case"]:
+
+def main(anfrage):
+    match anfrage["case"]:
         case "anmelden":
-            return sql.anmelden(json["anmeldename"], json["passwort"])
+            return sql.anmelden(anfrage["anmeldename"], anfrage["passwort"])
         case "changePS":
-            return sql.changePS(json["anmeldename"], json["passwort"], json["neuespasswort"])
+            return sql.changePS(anfrage["anmeldename"], anfrage["passwort"], anfrage["neuespasswort"])
         case "addSpieler":
-            return sql.addSpieler(json["anmeldename"], json["passwort"], json["email"])
+            return sql.addSpieler(anfrage["anmeldename"], anfrage["passwort"], anfrage["email"])
         case "neuesSpiel":
-            return sql.neuesSpiel(json["anzahlFragen"])
+            return sql.neuesSpiel(anfrage["anzahlFragen"])
         case "neueStatistik":
-            return sql.neueStatistik(json["anmeldename"], json["spielID"], json["punktzahl"], json["platzierung"])
+            return sql.neueStatistik(anfrage["anmeldename"], anfrage["spielID"], anfrage["punktzahl"], anfrage["platzierung"])
         case _:
             return "Bist du dumm?"
