@@ -73,7 +73,7 @@ def execute_update_query(query, data):
 
 
 def anmelden(anmeldename, passwort):
-    result = execute_select_query("SELECT passwort FROM spieler WHERE benutzername = %s or email = %s;", (anmeldename, anmeldename))
+    result = execute_select_query("SELECT passwort FROM spieler WHERE benutzername = %s or email = %s;", (anmeldename, anmeldename)) # TODO Problem: jemand hat email als Nutzernamen gesetzt
     if len(result) == 0:
         raise ValueError(f"Es existiert kein Konto mit dem Benutzernamen oder der E-Mail: \"{anmeldename}\"")
     if result[0][0] == passwort:
@@ -81,14 +81,14 @@ def anmelden(anmeldename, passwort):
     else:
         return False        #passwort falsch
 
-def addSpieler(benutzername, passwort, email):
+def add_spieler(benutzername, passwort, email):
     result = execute_insert_query("INSERT INTO Spieler VALUES (%s, %s, %s);", (benutzername, passwort, email))
     if result == benutzername:
         return True     #wurde erstellt
     else:
         return result   #gibt Fehler zurück
 
-def changePS(anmeldename, altesPasswort, neuesPasswort):
+def change_pw(anmeldename, altesPasswort, neuesPasswort):
     if anmelden(anmeldename, altesPasswort):
         result = execute_update_query("UPDATE Spieler SET passwort= %s WHERE benutzername = %s OR email = %s;", (neuesPasswort, anmeldename, anmeldename))
         if result:
@@ -98,26 +98,26 @@ def changePS(anmeldename, altesPasswort, neuesPasswort):
     else:
         raise ValueError("Falsches Passwort")
 
-def neuesSpiel(fragenanzahl):
+def neues_spiel(fragenanzahl):
     result = execute_insert_query("INSERT INTO Spiel (fragenanzahl) VALUES (%s);", (fragenanzahl,))
     return result
 
-def neueStatistik(benutzername, spielID, punktzahl, platzierung):
+def neue_statistik(benutzername, spielID, punktzahl, platzierung):
     result = execute_insert_query("INSERT INTO Statistik VALUES (%s, %s, %s, %s);", (benutzername, spielID, punktzahl, platzierung))
 
     return result
 
-def anzahlSpiele(benutzername):
+def anzahl_spiele(benutzername):
     result = execute_select_query("SELECT COUNT(spielerbenutzername) FROM Statistik WHERE spielerbenutzername = %s;" ,(benutzername, ))
 
     return result[0][0]
 
-def anzahlgewonneneSpiel(benutzername):
+def anzahl_gewonnene_spiele(benutzername):
     result = execute_select_query("SELECT COUNT(spielerbenutzername) FROM Statistik WHERE spielerbenutzername = %s AND platzierung = 1;", (benutzername, ))
 
     return result[0][0]
 
-def punkteproFrage(benutzername):
+def punkte_pro_frage(benutzername):
     result = execute_select_query("SELECT CAST(SUM(Statistik.punktzahl) AS float)/CAST(SUM(Spiel.fragenanzahl) AS float) FROM Statistik INNER JOIN Spiel ON Statistik.spielID=Spiel.ID WHERE Statistik.spielerbenutzername = %s", (benutzername, ))
 
     return result
