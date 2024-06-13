@@ -1,4 +1,5 @@
 import psycopg2
+from login import login
 
 db_params = {
     'dbname': 'efva',
@@ -84,7 +85,7 @@ def execute_update_query(query, data) -> int:
         print(f"Error while updating: {e.pgerror}")
         raise e
 
-def get_password(anmeldename: str):
+def get_password(anmeldename: str) -> bytes:
     try:
         result = execute_select_one_query("SELECT passwort FROM spieler WHERE benutzername = %s OR email = %s;", anmeldename)
         if not result:
@@ -104,7 +105,7 @@ def add_spieler(anmeldename: str, passwort: str, email: str) -> bool:
         raise e
 
 def change_pw(anmeldename, altes_passwort, neues_passwort):
-    if anmelden(anmeldename, altes_passwort):
+    if login(anmeldename, altes_passwort):
         result = execute_update_query("UPDATE Spieler SET passwort= %s WHERE benutzername = %s OR email = %s;", (neues_passwort, anmeldename, anmeldename))
         if result:
             return True #hat geklappt
