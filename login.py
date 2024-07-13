@@ -28,3 +28,14 @@ def login(username: str, password: str) -> bool:
     except psycopg2Error as e:
         print(f"Error during login: {e.pgerror}")
         raise e
+
+
+def change_password(username: str, old_pw: str, new_pw: str):
+    if login(username, old_pw):
+        result = sql.execute_update_query("UPDATE Spieler SET passwort= %s WHERE benutzername = %s OR email = %s;", (new_pw, username, username))
+        if result:
+            return True #hat geklappt
+        else:
+            return False #das war mies
+    else:
+        raise ValueError("Incorrect current password")

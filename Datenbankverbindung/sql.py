@@ -1,5 +1,4 @@
 import psycopg2
-from login import login
 
 db_params = {
     'dbname': 'efva',
@@ -103,16 +102,6 @@ def add_spieler(anmeldename: str, passwort: str, email: str) -> bool:
     except psycopg2.Error as e:
         print(f"Error while adding player: {e.pgerror}")
         raise e
-
-def change_pw(anmeldename, altes_passwort, neues_passwort):
-    if login(anmeldename, altes_passwort):
-        result = execute_update_query("UPDATE Spieler SET passwort= %s WHERE benutzername = %s OR email = %s;", (neues_passwort, anmeldename, anmeldename))
-        if result:
-            return True #hat geklappt
-        else:
-            return False #das war mies
-    else:
-        raise ValueError("Falsches Passwort")
 
 def neues_spiel(fragenanzahl):
     result = execute_insert_query("INSERT INTO Spiel (fragenanzahl) VALUES (%s);", fragenanzahl)
