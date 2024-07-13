@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: efva
+      POSTGRES_PASSWORD: efva-pw
+      POSTGRES_DB: efva-db
+    volumes:
+      - efva_db_vol:/var/lib/postgresql/data
+      - ./efva.sql:/docker-entrypoint-initdb.d/efva.sql
+    ports:
+      - 5433:5432
+
+  app:
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: efva-app
+    ports:
+      - 3000:3000
+    entrypoint: ["flask", "run", "--debug", "-p 3000", "--host=0.0.0.0"]
+
+
+volumes:
+  efva_db_vol:

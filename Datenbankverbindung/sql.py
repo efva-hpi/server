@@ -1,11 +1,10 @@
 import psycopg2
 
 db_params = {
-    'dbname': 'efva',
-    'user': 'postgres',
-    'password': '12345',
-    'host': 'localhost',
-    'port': '5432'
+    'dbname': 'efva-db',
+    'user': 'efva',
+    'password': 'efva-pw',
+    'host': 'db'
 }
 
 def connect() -> psycopg2.extensions.connection:
