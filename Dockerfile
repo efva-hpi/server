@@ -2,7 +2,7 @@ FROM python
 
 WORKDIR /app
 
-COPY app.py db.py spiellogik.py requirements.txt /app/
+COPY app.py spiellogik.py requirements.txt /app/
 COPY Datenbankverbindung/ /app/Datenbankverbindung/
 COPY static/ /app/static/
 COPY templates/ /app/templates/
