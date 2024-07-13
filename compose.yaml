@@ -19,6 +19,9 @@ services:
       context: .
       dockerfile: Dockerfile
     image: efva-app
+    volumes:
+      - ./:/app/
+    working_dir: /app/
     ports:
       - 3000:3000
     entrypoint: ["flask", "run", "--debug", "-p 3000", "--host=0.0.0.0"]
