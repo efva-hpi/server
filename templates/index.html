@@ -6,19 +6,36 @@
         <link rel="stylesheet" href="../static/index.css">
     </head>
     <body>
-
+        
         <div id="background-mosaic">
             <img src="../static/_cd9d8874-3a7c-471e-8882-eaa5aa93b916.jpeg" alt="Bild 1">
             <img src="../static/_04c89033-d506-4b7f-a6ab-9a4505c75e48.jpeg" alt="Bild 2">
             <img src="../static/_3ed42ef8-05fa-48a5-b0b3-e854016b7901.jpeg" alt="Bild 3">
             <img src="../static/_cd9d8874-3a7c-471e-8882-eaa5aa93b916.jpeg" alt="Bild 4">
         </div>
-        
         <div id="wrapper">
+            {% include "layout.html" ignore missing %}
+            <button id="loginBtn">login</button><button id="registerBtn">registerr</button>
+            <dialog id="loginDialog">
+                <form id="loginForm" onsubmit="return getFormAction(this)" method="post">
+                    <input type="username" name="loginUsernameInp" id="loginUsernameInp" placeholder="Username" required>
+                    <input type="password" name="loginPasswordInp" id="loginPasswordInp" placeholder="Password" required>
+                    <button type="submit" id="submitLoginDialogBtn">login</button>
+                </form>
+            </dialog>
+            <dialog id="registerDialog">
+                <form id="registerForm" action="/register" method="post">
+                    <input type="text" name="registerUsernameInp" id="registerUsernameInp" placeholder="Username" required>
+                    <input type="email" name="registerEmailInp" id="registerEmailInp" placeholder="Email Adresse" required>
+                    <input type="password" name="registerPasswordInp" id="registerPasswordInp" placeholder="Password" required>
+                    <input type="password" name="confirmPasswordInp" id="confirmPasswordInp" placeholder="Repeat Password" required>
+                    <button type="submit" id="submitRegisterDialogBtn">register</button>
+                </form>
+            </dialog>
             <h1>efva - eine Frage, vier Antworten</h1>
             <button id="createLobbyBtn">Create Lobby</button>
             <dialog id="createLobbyDialog">
-                <form id="createLobbyForm" onsubmit="getFormAction(this)" method="POST">
+                <form id="createLobbyForm" onsubmit="return getFormAction(this)" method="POST">
                     <input type="hidden" name="lobbyFormType" value="create">
                     <label for="lobbyCodeHdn">Lobby entry code: </label>
                     <input type="hidden" id="lobbyCodeHdn" name="lobbyCode" value="">
@@ -58,7 +75,6 @@
         <form id="joinLobbyForm" onsubmit="return getFormAction(this)" method="POST">
             <input type="hidden" name="lobbyFormType" value="join">
             <!-- <label for="joinLobbyCodeInp">{% if not validLobbyKey%}Bitte einen gültigen Lobby code eingeben.<br>{% endif %}</label> -->
-            {% include "layout.html" ignore missing %}
             <input type="text" name="joinLobbyCodeInp" id="joinLobbyCodeInp" placeholder="Lobby code eingeben" required>
             <button type="submit">Lobby beitreten</button>
         </form>

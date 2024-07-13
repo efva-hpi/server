@@ -10,8 +10,8 @@ def hash_password(password: str) -> bytes:
     return bcrypt.hashpw(password.encode('UTF-8'), bcrypt.gensalt())
 
 
-def check_password(password: str, hashed_password: bytes) -> bool:
-    return bcrypt.checkpw(password.encode('UTF-8'), hashed_password)
+def check_password(password: str, hashed_password: str) -> bool:
+    return bcrypt.checkpw(password.encode('UTF-8'), hashed_password.encode('UTF-8'))
 
 
 def register(username: str, password: str, email: str) -> bool:

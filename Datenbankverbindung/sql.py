@@ -51,9 +51,9 @@ def execute_select_one_query(query, data):
         print(f"Error while executing a select query: {e.pgerror}")
     finally:
         # Cursor und Verbindung schließen
-        if cur:
-            cur.close()
         if conn:
+            if cur:
+                cur.close()
             conn.close()
 
 def execute_insert_query(query, data) -> bool:
@@ -85,7 +85,7 @@ def execute_update_query(query, data) -> int:
 
 def get_password(anmeldename: str) -> bytes:
     try:
-        result = execute_select_one_query("SELECT passwort FROM spieler WHERE benutzername = %s OR email = %s;", anmeldename)
+        result = execute_select_one_query("SELECT passwort FROM spieler WHERE benutzername = %s OR email = %s;", (anmeldename, anmeldename))
         if not result:
             raise ValueError(f"No user associated with email or username {anmeldename}")
         return result[0]
