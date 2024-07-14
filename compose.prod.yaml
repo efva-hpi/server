@@ -1,0 +1,7 @@
+services:
+  app:
+    build:
+      target: prod
+    image:
+      efva-app-prod
+    entrypoint: ["mod_wsgi-express", "start-server", "wsgi.py", "--port", "3000", "--user", "www-data", "group", "www-data"]
