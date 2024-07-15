@@ -15,7 +15,7 @@ FROM dev AS prod
 
 WORKDIR /var/www/efva
 
-COPY app.py spiellogik.py wsgi.py login.py ./
+COPY app.py spiellogik.py wsgi.py login.py uwsgi.ini ./
 COPY Datenbankverbindung/ ./Datenbankverbindung/
 COPY static/ ./static/
 COPY templates/ ./templates/
