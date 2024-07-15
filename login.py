@@ -10,8 +10,8 @@ def hash_password(password: str) -> bytes:
     return bcrypt.hashpw(password.encode('UTF-8'), bcrypt.gensalt())
 
 
-def check_password(password: str, hashed_password: str) -> bool:
-    return bcrypt.checkpw(password.encode('UTF-8'), hashed_password.encode('UTF-8'))
+def check_password(password: str, hashed_password: bytes) -> bool:
+    return bcrypt.checkpw(password.encode('UTF-8'), hashed_password)
 
 
 def register(username: str, password: str, email: str) -> bool:
@@ -30,7 +30,7 @@ def login(username: str, password: str) -> bool:
         raise e
 
 
-def change_password(username: str, old_pw: str, new_pw: str):
+def change_password(username: str, old_pw: str, new_pw: str) -> bool:
     if login(username, old_pw):
         result = sql.execute_update_query("UPDATE Spieler SET passwort= %s WHERE benutzername = %s OR email = %s;", (new_pw, username, username))
         if result:
