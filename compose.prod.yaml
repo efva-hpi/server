@@ -10,8 +10,8 @@ services:
     image:
       efva-app-prod
     ports:
-      - 3000:3000
-    entrypoint: ["mod_wsgi-express", "start-server", "wsgi.py", "--port", "3000", "--user", "www-data", "group", "www-data"]
+      - 127.0.0.1:3000:3000
+    entrypoint: ["uwsgi", "uwsgi.ini"]
 
 volumes:
   efva_db_vol:
