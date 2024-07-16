@@ -45,7 +45,7 @@ def lobby(code):
             )
             gs.create_lobby(code, game_settings)
 
-        currentLobby: Lobby = gs.get_lobby_by_code(code)
+        currentLobby: Optional[Lobby] = gs.get_lobby_by_code(code)
         if currentLobby is None:
             return no_valid_lobby()
         joining_player: Player = Player(username)
@@ -66,12 +66,20 @@ def leave_lobby(code):
     if not auth_token:
         redirect("/")
     leaving_player_username = decode_token(auth_token)['username']
-    current_lobby: Lobby = gs.get_lobby_by_code(code)
+    current_lobby: Optional[Lobby] = gs.get_lobby_by_code(code)
+    if (current_lobby == None): return no_valid_lobby();
     players: list[Player] = current_lobby.get_players()
     leaving_player: Player = next((player for player in players if player.username == leaving_player_username), None)
     current_lobby.remove_player(leaving_player)
     return redirect("/")
 
+
+@app.route("/lobby/<code>/start", methods=["GET"])
+def start_game(code):
+    auth_token = request.cookies.get('auth_token', None)
+    if not auth_token:
+        redirect("/")
+    return render_template("game.html", lobbyCode=code)
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -103,6 +111,9 @@ def register():
         except psycopg2Error as e:
             flash('Dieser Nutzer hat bereits ein Konto', 'error')
             return redirect("/")
+        
+
+
 
 
 # Hilfsfunktionen
