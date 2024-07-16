@@ -1,16 +1,16 @@
 from dataclasses import dataclass
 from random import randint
-from time import time, sleep
+from time import time, sleep, time_ns
 import copy
 from typing import Optional
 import requests
 
 
-class Spieler:
-    def __init__(self, nickname: str, id: int) -> None:
-        self.nickname: str = nickname
-        self.id: int = id
+class Player:
+    def __init__(self, username: str) -> None:
+        self.username: str = username
         self.score: int = 0
+
 
 @dataclass
 class GameSettings:
@@ -24,25 +24,28 @@ class GameSettings:
     category: int = 0
     difficulty: str = "easy"
     game_type: str = "multiple choice"
-    max_time_question = 15 # in seconds
+    max_time_question = 15  # in seconds
 
-@dataclass 
+
+@dataclass
 class Question:
     question: str
     category: int
     answers: list[str]
     correct_answer: int
 
+
 @dataclass
 class Answer:
-    player: Spieler
+    player: Player
     answer: int
     time_stamp: int
 
+
 class Game:
-    def __init__(self, players: list[Spieler], id: int, game_settings: GameSettings, question_amount: int=10) -> None:
+    def __init__(self, players: list[Player], id: int, game_settings: GameSettings, question_amount: int = 10) -> None:
         self.id: int = id
-        self.player_list: list[Spieler] = players
+        self.player_list: list[Player] = players
 
         self.game_settings: GameSettings = game_settings
         self.question_amount = question_amount
@@ -52,24 +55,25 @@ class Game:
 
         self.answers: list[list[Answer]] = [[] for i in range(len(self.questions))]
 
-    def _calculate_points_time(self, question_time: Optional[int], answer_time: Optional[int], correct_answer: bool) -> int:
+    def _calculate_points_time(self, question_time: Optional[int], answer_time: Optional[int],
+                               correct_answer: bool) -> int:
         """
         Calculates the points using the answer and time to answer.
         """
         if not (question_time and answer_time): raise Exception("Time is none")
-        if (question_time > answer_time): raise Exception("Invalid time")
-    
-        time_taken_seconds = (answer_time - question_time) / 10e6 # time is measeured in ns
+        if question_time > answer_time: raise Exception("Invalid time")
+
+        time_taken_seconds = (answer_time - question_time) / 10e6  # time is measured in ns
         max_time = self.game_settings.max_time_question
 
-        if time_taken_seconds > max_time: return 0 # answer was too late
+        if time_taken_seconds > max_time: return 0  # answer was too late
 
         points: int = 0
-        if correct_answer: 
-            points += 500 # a correct answer gives you 500 points
+        if correct_answer:
+            points += 500  # a correct answer gives you 500 points
 
-            if time_taken_seconds < 10: # if you answered fast enough, you get more points
-                 points += round((1.0 - time_taken_seconds/max_time) * 400) # you can get up to 400 more points
+            if time_taken_seconds < 10:  # if you answered fast enough, you get more points
+                points += round((1.0 - time_taken_seconds / max_time) * 400)  # you can get up to 400 more points
 
         return points
 
@@ -79,14 +83,14 @@ class Game:
         """
         return answer in question.answers
 
-    def _calculate_points_question_player(self, question_id: int, player: Spieler) -> int:
+    def _calculate_points_question_player(self, question_id: int, player: Player) -> int:
         """
         Calculates the points for a given player for a given question
         """
         if question_id >= len(self.questions): raise Exception("Invalid question")
         timestamp: Optional[int] = self.question_timestamps[question_id]
         if not timestamp: raise Exception("Invalid question time")
-        
+
         answer: Optional[Answer] = self.get_answer_player(question_id, player)
         if not answer: raise Exception("Player has no answer for the question")
 
@@ -95,32 +99,33 @@ class Game:
 
     def calculate_points_question(self, question: int) -> list[int]:
         """
-        Returns the points for the n'th question for all players.
+        Returns the points for the nth question for all players.
         """
         points: list[int] = [self._calculate_points_question_player(question, p) for p in self.player_list]
         return points
-    
+
     def _add_lists(self, a: list[int], b: list[int]) -> list[int]:
         if len(a) != len(b): raise Exception("Lists are not equal length")
-        return [a[i]+b[i] for i in range(len(a))]
+        return [a[i] + b[i] for i in range(len(a))]
 
     def calculate_total_points(self) -> list[int]:
         """
         Returns the total points for all players and all currently answered questions
         """
         points: list[int] = [0 for p in self.player_list]
-        for i in range(self.current_question+1):
+        for i in range(self.current_question + 1):
             points = self._add_lists(points, self.calculate_points_question(i))
 
         return points
 
-    def get_answer_player(self, question_id: int, player: Spieler) -> Optional[Answer]:
+    def get_answer_player(self, question_id: int, player: Player) -> Optional[Answer]:
         """
         Returns the answer object for a given player and question id.
         Can be none.
         """
         for a in self.answers[question_id]:
-            if (a.player == player): return a
+            if a.player == player:
+                return a
         return None
 
     @staticmethod
@@ -159,28 +164,28 @@ class Game:
         answers = self.answers[self.current_question]
         for player in self.player_list:
             for a in answers:
-                if player.id != a.player: return False
+                if player.username != a.player.username: return False
         return True
 
-    def answer(self, player:Spieler, answer:int) -> bool:
+    def answer(self, player: Player, answer: int) -> bool:
         """
         Submits an answer for a given player object.
         Returns true if successful.
         """
-        if (player in self.player_list):
-            a: Answer = Answer(player, answer, time.time_ns())
+        if player in self.player_list:
+            a: Answer = Answer(player, answer, time_ns())
             if not (a in self.answers[self.current_question]):
                 self.answers[self.current_question].append(a)
                 return True
         return False
-    
+
     def next_question(self) -> bool:
         """
         Switches to the next question, if all players submitted an answer.
         Returns true if successful.
         """
-        if self.all_answered(): 
-            if self.current_question < len(self.questions)-1:
+        if self.all_answered():
+            if self.current_question < len(self.questions) - 1:
                 self.current_question += 1
                 return True
         return False
@@ -190,111 +195,101 @@ class Game:
         Returns the current question object.
         """
         return self.questions[self.current_question]
-    
-
 
 
 class Lobby:
     def __init__(self, id: int, code: str, game_settings: GameSettings = GameSettings()) -> None:
         self.id: int = id
-        self._player_list: list[Spieler] = []
+        self._player_list: list[Player] = []
 
         self.game_settings: GameSettings = game_settings
         self.code = code
 
-    def add_player(self, player: Spieler) -> bool:
+    def add_player(self, player: Player) -> bool:
         """
         Adds an existing player to the lobby.
         Returns true if successful.
         """
-        if not (player in self._player_list):   
+        if not (player in self._player_list):
             self._player_list.append(player)
             return True
         return False
-    
-    def remove_player(self, player: Spieler) -> bool:
+
+    def remove_player(self, player: Player) -> bool:
         """
         Removes an player from the lobby.
         Returns true if successful.
         """
-        if (player in self._player_list):
+        if player in self._player_list:
             self._player_list.remove(player)
             return True
         return False
-    
-    def get_players(self) -> list[Spieler]:
+
+    def get_players(self) -> list[Player]:
         """
         Returns a list of all player objects.
         """
         return self._player_list
-    
+
     def get_player_list(self) -> list[str]:
         """
         Returns a list of all nicknames.
         """
-        return [s.nickname for s in self._player_list]
-    
-    def get_player_ids(self) -> list[int]:
-        """
-        Returns a list of all ids.
-        """
-        return [s.id for s in self._player_list]
-    
-#    def create_invite_code(self) -> str:
-#        """
-#        Generates a 6-digit code using uppercase letters.
-#        """
-#        alph: list[str] = list(string.ascii_uppercase)
-#        number: int = self.id * 3789078567697854 + 456734568709089
-#        
-#        code: str = ""
-#        for i in range(6):
-#            code += alph[number % len(alph)]
-#            number //= len(alph)
-#        return code
-    
+        return [s.username for s in self._player_list]
+
+    #    def create_invite_code(self) -> str:
+    #        """
+    #        Generates a 6-digit code using uppercase letters.
+    #        """
+    #        alph: list[str] = list(string.ascii_uppercase)
+    #        number: int = self.id * 3789078567697854 + 456734568709089
+    #
+    #        code: str = ""
+    #        for i in range(6):
+    #            code += alph[number % len(alph)]
+    #            number //= len(alph)
+    #        return code
+
     def start_game(self) -> Game:
         """
         Starts a game and returns the game object
         """
         game: Game = Game(self._player_list, self.id, copy.deepcopy(self.game_settings))
         return game
-    
 
 
 class GameState:
     def __init__(self) -> None:
         self.id_counter = 0
-        self.player_id_counter = 0
         self.lobbies: list[Lobby] = []
         self.games: list[Game] = []
-        self.players: list[Spieler] = []
+        self.players: list[Player] = []
 
     def check_nickname(self, nickname: str) -> bool:
         """
         Checks if a given nickname is free
         """
-        for p in self.players: 
-            if p.nickname == nickname: return True
+        for p in self.players:
+            if p.username == nickname: return True
         return False
 
     def create_player(self, nickname: str) -> bool:
         """
         Creates a new player
         """
-        if (self.check_nickname(nickname)): return False
-        self.players.append(Spieler(nickname, self.player_id_counter))
-        self.player_id_counter += 1
+        if self.check_nickname(nickname): return False
+        self.players.append(Player(nickname))
         return True
-    
+
     def create_lobby(self, code: str, gameSettings: GameSettings) -> bool:
         """
         Creates a new lobby with a lobby code and game settings.
         Returns true if successful.
         """
         for l in self.lobbies:
-            if l.code == code: return False
-        
+            if l.code == code:
+                return False
+
         self.lobbies.append(Lobby(self.id_counter, code, gameSettings))
         self.id_counter += 1
         return True
@@ -305,25 +300,27 @@ class GameState:
         Can be none!
         """
         for l in self.lobbies:
-            if (l.id == id): return l.code
+            if l.id == id: return l.code
         return None
-    
+
     def get_id(self, code: str) -> Optional[int]:
         """
         Returns the id for a given lobby code.
         Can be none!
         """
         for l in self.lobbies:
-            if (l.code == code): return l.id
+            if l.code == code:
+                return l.id
         return None
-    
+
     def get_lobby_by_id(self, id: int) -> Optional[Lobby]:
         """
         Returns the lobby object for a given id.
         Can be none!
         """
         for l in self.lobbies:
-            if (l.id == id): return l
+            if l.id == id:
+                return l
         return None
 
     def get_lobby_by_code(self, code: str) -> Optional[Lobby]:
@@ -332,9 +329,10 @@ class GameState:
         Can be none!
         """
         for l in self.lobbies:
-            if (l.code == code): return l
+            if l.code == code:
+                return l
         return None
-    
+
     def start_game(self, id: int) -> bool:
         """
         Starts a game for a given lobby id.
@@ -344,14 +342,15 @@ class GameState:
         if lobby:
             self.games.append(lobby.start_game())
             return True
-        else: return False
-    
+        else:
+            return False
+
     def get_game_by_id(self, id: int) -> Optional[Game]:
         """
         Returns the game object for a given id (identical to the corresponding lobby id).
         Can be none.
         """
         for g in self.games:
-            if (g.id == id):
+            if g.id == id:
                 return g
         return None
