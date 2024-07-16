@@ -13,6 +13,12 @@
             <li>Schwierigkeit: {{lobbyInfo.difficulty}}</li>
             <li>Spielmodus: {{lobbyInfo.game_type}}</li>
         </ul>
+        <h2>Spieler: </h2>
+        <ul>
+            {% for player in players %}
+                <li>{{ player }}</li>
+            {% endfor %}
+        </ul>
         <button type="button" onclick="window.location.href += '/leave'">Lobby verlassen</button>
     </body>
 </html>
