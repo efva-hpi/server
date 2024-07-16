@@ -1,0 +1,17 @@
+services:
+  db:
+    volumes:
+      - efva_db_vol:/var/lib/postgresql/data
+      - ./efva.sql:/docker-entrypoint-initdb.d/efva.sql
+
+  app:
+    build:
+      target: prod
+    image:
+      efva-app-prod
+    ports:
+      - 127.0.0.1:3000:3000
+    entrypoint: ["uwsgi", "uwsgi.ini"]
+
+volumes:
+  efva_db_vol:

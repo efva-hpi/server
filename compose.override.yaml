@@ -1,0 +1,19 @@
+services:
+  db:
+    volumes:
+      - efva_db_vol:/var/lib/postgresql/data
+      - ./efva.sql:/docker-entrypoint-initdb.d/efva.sql
+
+  app:
+    build:
+      target: dev
+    volumes:
+      - ./:/app/
+    ports:
+      - 3000:3000
+    stop_signal: SIGINT
+    entrypoint: [ "flask", "run", "-p 3000", "--host=0.0.0.0" ]
+
+
+volumes:
+  efva_db_vol:

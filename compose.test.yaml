@@ -1,0 +1,12 @@
+services:
+  db:
+    volumes:
+      - ./test.sql:/docker-entrypoint-initdb.d/test.sql
+
+  app:
+    build:
+      target: testing
+    volumes:
+      - ./:/app/
+    image: efva-app-test
+    entrypoint: ["pytest", "-o", "pythonpath=.", "-o", "testpaths=tests"]
