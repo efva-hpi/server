@@ -1,15 +1,19 @@
+/* Spezielle Body Styles */
+body {
+    justify-content: center;
+}
+
 /* Grundlegende Stile für den Wrapper */
 #wrapper {
     width: 35%; 
-    margin: 31vh 0 0 0; 
     background-color: rgba(255, 255, 255, 0.8); 
     border-radius: 10px;
     padding: 30px; 
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
     gap: 20px;
-    height: 100%;
 }
 
 /* Auth Buttons */
@@ -47,12 +51,10 @@ select {
     width: 100%;
 }
 
-
-input[type="text"],
-dialog input[type="username"],
-dialog input[type="email"],
-dialog input[type="password"],
-input[type="text"],
+input[type="text"]::placeholder,
+dialog input[type="username"]::placeholder,
+dialog input[type="email"]::placeholder,
+dialog input[type="password"]::placeholder,
 input[type="number"]::placeholder {
     color: #999;
 }
@@ -152,4 +154,70 @@ menu {
 #cancelRegisterDialogBtn {
     flex: 3;
     box-sizing: border-box;
+}
+
+/* Media Queries für Handybildschirme */
+@media screen and (max-width: 1000px) {
+    #wrapper {
+        width: 85%;
+        padding: 4vw;
+        gap: 15px;
+        font-size: 4vw;
+    }
+
+    h1{
+        max-width: 95%;
+    }
+
+    #authButtons {
+        flex-direction: column;
+        max-width: 80vw;
+        gap: 10px; /* Etwas mehr Abstand zwischen den Buttons */
+    }
+
+    #authButtons button {
+        max-width: 100%;
+    }
+
+    dialog form {
+        gap: 5px;
+    }
+
+    dialog input[type="text"],
+    dialog input[type="username"],
+    dialog input[type="email"],
+    dialog input[type="password"],
+    input[type="text"],
+    input[type="number"],
+    select {
+        padding: 10px;
+        font-size: 6vw;
+    }
+
+    dialog button[type="submit"],
+    dialog button[type="button"] {
+        font-size: 6vw;
+        padding: 8px;
+    }
+
+    menu {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    #loginDialog,
+    #registerDialog,
+    #createLobbyDialog{
+        font-size: 5vw;
+    }
+
+    #loginBtn,
+    #registerBtn,
+    #createLobbyBtn,
+    #joinLobbyBtn,
+    #joinLobbyCodeInp {
+        font-size: 6vw;
+    }
+    
+
 }

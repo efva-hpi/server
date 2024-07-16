@@ -1,10 +1,14 @@
 /* Grundlegende Stileinstellungen */
+html {
+    height: 100%;
+}
+
 body {
+    height: 100%;
     font-family: Arial, sans-serif;
     background-color: #f0f8ff;
-    color: #333;
+    color: hsl(0, 0%, 20%);
     margin: 0;
-    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -34,7 +38,7 @@ body {
 /* Überschrift */
 h1 {
     color: #000000;
-    margin-bottom: 20px;
+    text-align: center;
 }
 
 /* Buttons */
@@ -79,22 +83,11 @@ menu {
 }
 
 /* Responsive Design */
-@media (max-width: 600px) {
-    body {
-        padding: 10px;
-    }
-
-    h1 {
-        font-size: 24px;
-        text-align: center;
-    }
-
-    button {
-        width: 100%;
-        margin-top: 10px;
-    }
-
+@media screen and (max-width: 1000px) {
     dialog {
-        padding: 10px;
+        padding: 3vw;
+        border: 5px solid #0066cc;
+        max-width: 90%;
+    
     }
 }
