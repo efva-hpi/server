@@ -3,9 +3,16 @@
     <head>
         <title>{{lobbyCode}}</title>
         <link rel="stylesheet" href="../static/style.css">
+        
     </head>
     <body>
         <h1>Lobby code: {{lobbyCode}}</h1>
+        <img id='qrcode' 
+        src="" 
+        alt="" 
+        title="qrcode" 
+        width="150" 
+        height="150" />
         <h2>Lobby einstellungen:</h2>
         <ul>
             <li>Fragen: {{lobbyInfo.n_questions}}</li>
@@ -20,5 +27,6 @@
             {% endfor %}
         </ul>
         <button type="button" onclick="window.location.href += '/leave'">Lobby verlassen</button>
+        <script src="../static/lobby.js"></script>
     </body>
 </html>
