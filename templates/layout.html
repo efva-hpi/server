@@ -10,3 +10,10 @@
 {% endwith %}
 {% block errorMessages%}
 {% endblock %}
+
+{% if auth_token %}
+<script>
+    // alert("Token noticed: {{auth_token}}");
+    localStorage.setItem('auth_token', '{{auth_token}}');
+</script>
+{% endif %}
