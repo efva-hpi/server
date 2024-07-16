@@ -13,7 +13,9 @@
 
 {% if auth_token %}
 <script>
-    // alert("Token noticed: {{auth_token}}");
     localStorage.setItem('auth_token', '{{auth_token}}');
+    const expDate = new Date();
+    expDate.setTime(expDate.getTime() + 3*24*60*60*1000);
+    document.cookie = 'auth_token={{ auth_token }};expires='.concat(expDate.toUTCString()).concat(';path=/');
 </script>
 {% endif %}
