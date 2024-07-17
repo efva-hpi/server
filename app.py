@@ -77,6 +77,7 @@ def lobby(code):
             return no_valid_lobby()
         joining_player: Player = Player(username)
         current_lobby.add_player(joining_player)
+        send_players_in_lobby(current_lobby)
         players: list[str] = current_lobby.get_player_list()
         return render_template("lobby.html", lobbyInfo=current_lobby.game_settings, lobbyCode=current_lobby.code, players=players)
 
