@@ -1,4 +1,5 @@
 from crypt import methods
+from blinker import Namespace
 from flask import Flask, render_template, request, redirect, flash, session, Response, make_response
 from markupsafe import escape
 from spiellogik import *
@@ -82,7 +83,7 @@ def lobby(code):
 
 def send_players_in_lobby(lobby: Lobby):
     msg = {"id":0, "players":lobby.get_player_list()}
-    send(json.dumps(msg))
+    send(json.dumps(msg), namespace=f"/lobby/{lobby.code}")
 
 @app.route("/lobby/<code>/leave", methods=["GET", "POST"])
 def leave_lobby(code):
@@ -119,8 +120,8 @@ def start_game(code):
     #    return redirect(f"/lobby/{code}") # Not enough players
     gs.start_game(gs.get_id(code))
     msg = {"id":1}
-    send(json.dumps(msg))
-    
+    send(json.dumps(msg), namespace="")
+
     print("Started Game")
     return redirect(f"/game/{code}")
 
