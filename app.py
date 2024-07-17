@@ -1,3 +1,11 @@
+"""
+Player List:    {"id" : 0, "players" : ["Tobi", "Udolf", "Rudolf"]}
+Start game:     {"id" : 1}
+New question:   {"id" : 2, "question_index" : 0, "question" : "Was los?", "answers" : ["Hö", "Hä", "Hey", "Ha"]}
+Submit answers: {"id" : 3, "auth_token" : "...", "question_index" : 0, "answer" : 4, "lobbyCode" : "ABC143"}
+Get Question:   {"id" : 4, "auth_token" : "..."}
+"""
+
 from crypt import methods
 from blinker import Namespace
 from flask import Flask, render_template, request, redirect, flash, session, Response, make_response
@@ -135,6 +143,7 @@ def handle_message(data_raw):
 
 
     game: Optional[Game] = gs.get_game_by_code(data["lobbyCode"])
+    if data["question"] != game.current_question: return 
     if not game: return
 
     if (data["id"] == 3):
