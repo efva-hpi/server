@@ -6,6 +6,7 @@ from login import login as a_login, register as a_register, psycopg2Error
 import jwt
 import datetime
 from flask_socketio import SocketIO, send
+import json
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -79,6 +80,10 @@ def lobby(code):
         return render_template("lobby.html", lobbyInfo=current_lobby.game_settings, lobbyCode=current_lobby.code, players=players)
 
 
+def send_players_in_lobby(lobby: Lobby):
+    msg = {"id":0, "players":lobby.get_player_list()}
+    send(json.dumps(msg))
+
 @app.route("/lobby/<code>/leave", methods=["GET", "POST"])
 def leave_lobby(code):
     auth_token = request.cookies.get('auth_token', None)
@@ -90,7 +95,11 @@ def leave_lobby(code):
     players: list[Player] = current_lobby.get_players()
     leaving_player: Player = next((player for player in players if player.username == leaving_player_username), None)
     current_lobby.remove_player(leaving_player)
+    send_players_in_lobby(current_lobby)
+
     return redirect("/")
+
+
 
 
 @app.route("/lobby/<code>/start", methods=["GET"])
@@ -109,6 +118,9 @@ def start_game(code):
     #if (len(lobby.get_players()) < 2): 
     #    return redirect(f"/lobby/{code}") # Not enough players
     gs.start_game(gs.get_id(code))
+    msg = {"id":1}
+    send(json.dumps(msg))
+    
     print("Started Game")
     return redirect(f"/game/{code}")
 
