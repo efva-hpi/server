@@ -10,8 +10,8 @@ services:
     image:
       efva-app-prod
     ports:
-      - 127.0.0.1:3000:3000
-    entrypoint: ["/etc/mod_wsgi-express-3000/apachectl", "start"]
+      - 3000:3000
+    entrypoint: ["mod_wsgi-express", "start-server", "wsgi.py", "--port", "3000", "--user", "www-data", "--group", "www-data"]
 
 volumes:
   efva_db_vol:

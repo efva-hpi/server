@@ -27,5 +27,3 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
     apt install apache2 apache2-dev -y
 
 RUN --mount=type=cache,target=/root/.cache/pip pip install mod-wsgi
-
-RUN mod_wsgi-express setup-server wsgi.py https-port 3000 https-only --server-name efva.konsti.store --user www-data --group www-data --server-root /etc/mod_wsgi-express-3000
