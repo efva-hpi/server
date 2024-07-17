@@ -62,7 +62,7 @@ class Game:
 
         self.game_settings: GameSettings = game_settings
         self.question_amount = game_settings.n_questions
-        self.questions: list[Question] = self.get_questions(game_settings.n_questions)
+        self.questions: list[Question] = self.get_questions(game_settings.n_questions, game_settings.difficulty, game_settings.category)
         self.question_timestamps: list[Optional[int]] = [None for i in range(len(self.questions))]
         self.current_question = 0
         self.on_next_question = on_next_question
