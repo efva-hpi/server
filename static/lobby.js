@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var socket_io_client_1 = require("socket.io-client");
 // HTML Elements
 var leaveBtn = document.getElementById("leaveBtn");
 var messageDialog = document.getElementById('messageDialog');
@@ -16,10 +13,6 @@ href = href.substring(href.indexOf(':'));
 // const currentLobbyCode: string = href.slice(-6);
 // const gameUrl: string = `ws${currentUrl}game/${currentLobbyCode}`;
 // const gameSocket: WebSocket = new WebSocket(gameUrl);
-var socket = (0, socket_io_client_1.default)();
-socket.on('connect', function () {
-    socket.emit('message', { data: "conn: ".concat(href.slice(-6)) });
-});
 // Event listeners
 // lobbySocket.addEventListener("open", (event: Event): void => {
 //     lobbySocket.send("Hello Server!")

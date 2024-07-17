@@ -1,4 +1,4 @@
-import io from 'socket.io-client';
+
 
 // HTML Elements
 const leaveBtn = document.getElementById("leaveBtn");
@@ -16,10 +16,6 @@ href = href.substring(href.indexOf(':'));
 // const currentLobbyCode: string = href.slice(-6);
 // const gameUrl: string = `ws${currentUrl}game/${currentLobbyCode}`;
 // const gameSocket: WebSocket = new WebSocket(gameUrl);
-const socket = io();
-socket.on('connect', () => {
-   socket.emit('message', { data: 'Hello World!' });
-});
 
 // Event listeners
 // lobbySocket.addEventListener("open", (event: Event): void => {

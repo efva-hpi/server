@@ -115,7 +115,6 @@ def start_game(code):
 
 @socketio.on('message')
 def on_message(message):
-    print(message)
     send(message=message)
 
 @app.route("/game/<code>", methods=["GET"])
