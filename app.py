@@ -64,22 +64,23 @@ def lobby(code):
     elif request.method == "GET":
         # print("lobby get")
         auth_token = session.get('auth_token', None)
-        if auth_token:
-            session.pop('auth_token')
-            auth_cookie = auth_token
-        elif not auth_cookie:
+        if not auth_cookie and not auth_token:
             flash('Please enter a username', 'message')
             return render_template('lobby.html', lobbyInfo=None, lobbyCode=None, players=None)
-        decoded_auth_token = decode_token(auth_cookie)
-        username = decoded_auth_token['username']
+        if not auth_cookie:
+            auth_cookie = auth_token
         current_lobby = gs.get_lobby_by_code(code)
         if current_lobby is None:
             return no_valid_lobby()
+        decoded_auth_token = decode_token(auth_cookie)
+        username = decoded_auth_token['username']
         joining_player: Player = Player(username)
         current_lobby.add_player(joining_player)
         send_players_in_lobby(current_lobby)
         players: list[str] = current_lobby.get_player_list()
-        return render_template("lobby.html", lobbyInfo=current_lobby.game_settings, lobbyCode=current_lobby.code, players=players)
+        resp = make_response(render_template("lobby.html", lobbyInfo=current_lobby.game_settings, lobbyCode=current_lobby.code, players=players))
+        resp.set_cookie('auth_token', auth_cookie)
+        return resp
 
 
 def send_players_in_lobby(lobby: Lobby):

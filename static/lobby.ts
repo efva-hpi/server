@@ -7,8 +7,8 @@ const guestUsernameInp = document.getElementById('guestUsernameInp');
 const submitUsernameBtn = document.getElementById('submitUsernameBtn');
 
 // WebSockets
-let href = window.location.href;
-href = href.substring(href.indexOf(':'));
+ let href = window.location.href;
+// href = href.substring(href.indexOf(':'));
 // console.log(`ws${href}`);
 // const lobbySocket: WebSocket = new WebSocket(`ws${href}`);
 //

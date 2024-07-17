@@ -230,7 +230,7 @@ class Lobby:
         Adds an existing player to the lobby.
         Returns true if successful.
         """
-        if not (player in self._player_list):
+        if not (player.username in self.get_player_list()):
             self._player_list.append(player)
             return True
         return False
