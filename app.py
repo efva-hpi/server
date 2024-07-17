@@ -142,10 +142,17 @@ def send_next_question(question: Question, index: int) -> None:
     msg = {"id" : 2, "question_index": index, "question": question.question, "answers": question.answers}
     socketio.emit("message", json.dumps(msg), namespace="")
 
+
+def write_log(data):
+    file = open("log.txt", "a")
+    file.write(str(data) + "\n")
+    file.close()
+
 @socketio.on('message')
 def handle_message(data_raw):
+    write_log(data_raw)
     print(f"Recieved {data_raw}")
-    data = json.loads(data_raw)
+    data = json.loads(str(data_raw))
 
 
     game: Optional[Game] = gs.get_game_by_code(data["lobbyCode"])
