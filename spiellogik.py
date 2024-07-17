@@ -7,6 +7,11 @@ import requests
 import json
 import threading
 
+def write_send_log(data):
+    file = open("log_send.txt", "a")
+    file.write(str(data) + "\n")
+    file.close()
+
 
 class Player:
     def __init__(self, username: str) -> None:
@@ -60,7 +65,6 @@ class Game:
         self.answers: list[list[Answer]] = [[] for i in range(len(self.questions))]
 
         self.start_timer(0) # Start timer for first question
-        self.on_next_question(self.questions[0], 0)
         
 
     def _calculate_points_time(self, question_time: Optional[int], answer_time: Optional[int],
@@ -193,10 +197,12 @@ class Game:
         Submits an answer for a given player object.
         Returns true if successful.
         """
+        print(f"Answer {player}, n: {answer}, timeout: {timeout}")
         if player in self.player_list:
             a: Answer = Answer(player, answer, time_ns(), timeout=timeout)
             if not (a in self.answers[self.current_question]):
                 self.answers[self.current_question].append(a)
+                print(f"Submitted answer {a}")
                 return True
         return False
 
@@ -206,7 +212,7 @@ class Game:
         Returns true if successful.
         """
         if self.all_answered():
-            if self.current_question < len(self.questions) - 1:
+            if self.current_question < (len(self.questions) - 1):
                 self.current_question += 1
                 self.start_timer(self.current_question)
                 self.on_next_question(self.questions[self.current_question], self.current_question)
@@ -374,10 +380,10 @@ class GameState:
         Can be none.
         """
         id: Optional[int] = self.get_id(code)
-        if id:
-            for g in self.games:
-                if g.id == id:
-                    return g
+        if id == None: return None
+        for g in self.games:
+            if g.id == id:
+                return g
         return None
 
     def get_game_by_id(self, id: int) -> Optional[Game]:
@@ -394,7 +400,9 @@ class GameState:
         """
         Returns a player object for a given username
         """
+        write_send_log("Ahhh: " + str(self.players))
         for p in self.players:
+            
             if p.username == username:
                 return p
         return None

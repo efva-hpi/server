@@ -4,9 +4,11 @@ Start game:     {"id" : 1}
 New question:   {"id" : 2, "question_index" : 0, "question" : "Was los?", "answers" : ["Hö", "Hä", "Hey", "Ha"]}
 Submit answers: {"id" : 3, "auth_token" : "...", "question_index" : 0, "answer" : 4, "lobby_code" : "ABC143"}
 Get Question:   {"id" : 4, "auth_token" : "...", "lobby_code" : "HFG749"}
+End Game:       {"id" : 5, "lobby_code" : "ABC123"}
 """
 
 from crypt import methods
+from shlex import join
 from blinker import Namespace
 from flask import Flask, render_template, request, redirect, flash, session, Response, make_response
 from markupsafe import escape
@@ -84,6 +86,7 @@ def lobby(code):
         username = decoded_auth_token['username']
         joining_player: Player = Player(username)
         current_lobby.add_player(joining_player)
+        gs.create_player(joining_player.username)
         send_players_in_lobby(current_lobby)
         players: list[str] = current_lobby.get_player_list()
         resp = make_response(render_template("lobby.html", lobbyInfo=current_lobby.game_settings, lobbyCode=current_lobby.code, players=players))
@@ -140,11 +143,18 @@ def start_game(code):
 
 def send_next_question(question: Question, index: int) -> None:
     msg = {"id" : 2, "question_index": index, "question": question.question, "answers": question.answers}
+    write_send_log(msg)
     socketio.emit("message", json.dumps(msg), namespace="")
 
 
 def write_log(data):
     file = open("log.txt", "a")
+    file.write(str(data) + "\n")
+    file.close()
+
+
+def write_send_log(data):
+    file = open("log_send.txt", "a")
     file.write(str(data) + "\n")
     file.close()
 
@@ -156,13 +166,23 @@ def handle_message(data_raw):
 
 
     game: Optional[Game] = gs.get_game_by_code(data["lobby_code"])
-    if not game: return
+    
+    if game == None: 
+        write_send_log(f"Lobby code {data["lobby_code"]} not found")
+        return
+
 
     if (data["id"] == 3):
+        write_send_log("id 3")
+        print("id 3")
         if data["question_index"] != game.current_question: return
-        player: Optional[Player] = gs.get_player_by_username(decode_token(data["auth_token"])["username"])
-        if not player: return
+        write_send_log(decode_token(data["auth_token"])["username"])
+        player: Optional[Player] = gs.get_player_by_username(str(decode_token(data["auth_token"])["username"]))
+        write_send_log(gs.get_player_by_username(decode_token(data["auth_token"])["username"]))
+        write_send_log(player)
+        if player == None: return
         game.answer(player, data["answer"])
+        game.next_question()
 
     if (data["id"] == 4):
         send_next_question(game.questions[game.current_question], game.current_question)
