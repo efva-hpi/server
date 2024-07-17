@@ -5,9 +5,11 @@ from spiellogik import *
 from login import login as a_login, register as a_register, psycopg2Error
 import jwt
 import datetime
+from flask_sockets import Sockets
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+sockets = Sockets(app)
 
 gs: GameState = GameState()
 
@@ -20,6 +22,7 @@ def main_page():
     if auth_token:
         session.pop('auth_token')
     return render_template("index.html", auth_token=auth_token)
+
 
 
 
@@ -112,6 +115,21 @@ def start_game(code):
     print("Started Game")
     return redirect(f"/game/{code}")
 
+
+@sockets.route('/game/<code>')
+def game_socket(ws, code):
+    lobby: Optional[Lobby] = gs.get_lobby_by_code(code)
+    if (lobby == None): return
+
+    players: list[str] = lobby.get_player_list()
+
+    while not ws.closed:
+        if (lobby.get_player_list() != players):
+            players = lobby.get_player_list()
+            ws.send(players)
+        message = ws.receive()
+        print(message)
+
 @app.route("/game/<code>", methods=["GET"])
 def game_page(code):
     auth_token = request.cookies.get('auth_token', None)
@@ -160,9 +178,6 @@ def register():
             flash('Dieser Nutzer hat bereits ein Konto', 'error')
             return redirect("/")
         
-
-
-
 
 # Hilfsfunktionen
 def no_valid_lobby():

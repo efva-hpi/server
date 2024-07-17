@@ -4,6 +4,7 @@ from time import time, sleep, time_ns
 import copy
 from typing import Optional
 import requests
+import json
 
 
 class Player:
@@ -233,7 +234,7 @@ class Lobby:
 
     def get_player_list(self) -> list[str]:
         """
-        Returns a list of all nicknames.
+        Returns a list of all usernames.
         """
         return [s.username for s in self._player_list]
 
