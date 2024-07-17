@@ -82,7 +82,7 @@ def lobby(code):
 
 
 def send_players_in_lobby(lobby: Lobby):
-    msg = {"id":0, "players":lobby.get_player_list()}
+    msg = {"id": 0, "players": lobby.get_player_list()}
     socketio.emit("message", json.dumps(msg), namespace="")
 
 @app.route("/lobby/<code>/leave", methods=["GET", "POST"])

@@ -36,23 +36,44 @@
         </ul>
         {% if players %}
         <h2>Spieler: </h2>
-        <ul>
-            {% for player in players %}
-                <li>{{ player }}</li>
-            {% endfor %}
-        </ul>
+        <ul id="playerListUL"></ul>
         {% endif %}
         <button type="button" onclick="window.location.href += '/leave'">Lobby verlassen</button>
         <button type="button" onclick="window.location.href += '/start'">Spiel starten</button>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
         <script type="text/javascript" charset="utf-8">
+            let playerListUL = document.getElementById('playerListUL');
             var socket = io();
             socket.on('connect', function() {
-                socket.emit('message', {data: 'I\'m connected!'});
+                // socket.emit('message', {data: 'I\'m connected!'});
             });
-            console.log("Hallo hallo");
-            socket.on('message', function(data) {
-                console.log('Received message:', data);
+            socket.on('message', function(response) {
+                console.log('Received message:', response);
+                console.log('Received data:', response.data);
+                const jsonResponse = response.data;
+                console.log(jsonResponse);
+                switch (jsonResponse['id']) {
+                    case 0:
+                        // Spielerliste
+                        playerListUL.innerHTML = '';
+                        let players = jsonResponse['players'];
+                        for (let i=0; i<players.length; i++) {
+                            let newListItem = document.createElement('li');
+                            newListItem.textContent = players[i];
+                            playerListUL.appendChild(newListItem);
+                        }
+                        break;
+                    case 1:
+                        // Spiel starten
+                        const currentUrl= href.slice(0, -12);
+                        const currentLobbyCode = href.slice(-6);
+                        const gameUrl= `${currentUrl}game/${currentLobbyCode}`;
+                        window.location.href = gameUrl;
+                        break;
+                    default:
+                        window.location.href += '/leave';
+                        // neue Frage
+                }
             });
         </script>
         <script src="../static/lobby.js"></script>
