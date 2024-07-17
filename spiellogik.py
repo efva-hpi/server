@@ -105,16 +105,16 @@ class Game:
         Calculates the points for a given player for a given question
         """
         if question_id >= len(self.questions): raise Exception("Invalid question")
-        timestamp: Optional[int] = self.question_timestamps[question_id]
-        if not timestamp: raise Exception("Invalid question time")
+        # timestamp: Optional[int] = self.question_timestamps[question_id]
+        # if timestamp is None: raise Exception("Invalid question time")
 
         answer: Optional[Answer] = self.get_answer_player(question_id, player)
-        if not answer: raise Exception("Player has no answer for the question")
+        if not answer: return 0 #raise Exception("Player has no answer for the question")
         if (answer.timeout): return 0
 
         question: Question = self.questions[question_id]
-        return self._calculate_points_time(timestamp, answer.time_stamp, self._check_question(question, answer))
-
+        return int(self._check_question(question, answer))
+        # return self._calculate_points_time(timestamp, answer.time_stamp, self._check_question(question, answer))
     # TODO: callback next question
 
 
@@ -207,13 +207,13 @@ class Game:
         print(f"Answer {player}, n: {answer}, timeout: {timeout}")
         #write_answer_log(f"Answer {player}, n: {answer}, timeout: {timeout}, player_list: {self.player_list}")
         if player.username in [p.username for p in self.player_list]:
-            a: Answer = Answer(player, answer, time_ns(), timeout=timeout)
+            ans: Answer = Answer(player, answer, time_ns(), timeout=timeout)
             #write_answer_log(a.player.username)
             #write_answer_log([a.player.username for a in self.answers[self.current_question]]   )
             if not (player.username in [a.player.username for a in self.answers[self.current_question]]):
-                self.answers[self.current_question].append(a)
+                self.answers[self.current_question].append(ans)
                 #write_answer_log(f"Submitted answer {a}")
-                print(f"Submitted answer {a}")
+                print(f"Submitted answer {ans}")
                 return True
         return False
 

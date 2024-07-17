@@ -20,9 +20,15 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
         <script type="text/javascript" charset="utf-8">
+            // HTML Elements
             const questionIndexSpan = document.getElementById('questionIndexSpan');
             const currentQuestionSpan = document.getElementById('currentQuestionSpan');
             const answerButtonsDiv = document.getElementById('answerButtonsDiv');
+
+            // Constants
+            const currentLobbyCode = window.location.href.slice(-6);
+
+            // Websocket
             const socket = io();
             socket.on('connect', function() {
                 // Get Question
@@ -46,7 +52,6 @@
                         console.log("New question yay");
                         if(jsonResponse['question_index'] < questionIndexSpan.innerText) break;
                         answerButtonsDiv.innerHTML = "";
-                        const currentLobbyCode = window.location.href.slice(-6);
                         questionIndexSpan.innerText = jsonResponse['question_index'];
                         currentQuestionSpan.innerHTML = jsonResponse['question'];
                         let answerOptions = jsonResponse['answers']
@@ -67,6 +72,16 @@
                         break;
                     case 4:
                         // Get Question
+                        break;
+                    case 5:
+                        console.log("It's joever");
+                        if(jsonResponse['lobby_code'] != currentLobbyCode) break;
+                        console.log("actually doin it");
+                        const currentUrl= window.location.href.slice(0, -11);
+                        const scoreboardUrl = `${currentUrl}scoreboard/${currentLobbyCode}`;
+                        console.log(scoreboardUrl);
+                        window.location.href = scoreboardUrl;
+                        break;
                     default:
                         goToHome()
                         // neue Frage
