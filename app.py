@@ -18,6 +18,7 @@ import jwt
 import datetime
 from flask_socketio import SocketIO
 import json
+from typing import List, Tuple
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -212,8 +213,8 @@ def load_scoreboard(code):
     finished_game: Game = gs.get_game_by_code(code)
     players: list[Player] = finished_game.player_list
     scores: list[int] = finished_game.calculate_total_points()
-    players_scores_list = zip(players, scores)
-    sorted_players_scores = sorted(players_scores_list, key=lambda x: x[1], reverse=True)
+    players_scores_list: List[Tuple[Player, int]] = list(zip(players, scores))
+    sorted_players_scores: List[Tuple[Player, int]] = sorted(players_scores_list, key=lambda x: x[1], reverse=True)
     write_log([players, scores, players_scores_list, sorted_players_scores])
     return render_template("scoreboard.html", lobbyCode=code, playersScores=sorted_players_scores)
 

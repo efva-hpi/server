@@ -11,11 +11,9 @@
         Spiel {{lobbyCode}}
     </h1>
     <ol id="playerListUL">
-        {%- for s_c in sorted_players_scores %}
-            <li>{{s_c[0]}}: {{ s_c[1]}}</li>
+        {%- for player, score in playersScores %}
+            <li>{{player.username}}, Punkte: {{ score }} </li>
         {% endfor -%}
     </ol>
-    {{ players }}
-    {{ scores }}
 </body>
 </html>
