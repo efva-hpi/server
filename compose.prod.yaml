@@ -11,7 +11,7 @@ services:
       efva-app-prod
     ports:
       - 3000:3000
-    entrypoint: ["mod_wsgi-express", "start-server", "wsgi.py", "--port", "3000", "--user", "www-data", "--group", "www-data"]
+    entrypoint: ["mod_wsgi-express", "start-server", "wsgi.py", "--https-port", "3000", "--https-only", "--server-name efva.konsti.store", "--ssl-certificate-file ssl-certs/server.crt", "--ssl-certificate-key-file ssl-certs/server.key", "--ssl-ca-certificate-file ssl-certs/ca.crt", "--user", "www-data", "--group", "www-data", "--server-root /etc/mod_wsgi-express"]
 
 volumes:
   efva_db_vol:
