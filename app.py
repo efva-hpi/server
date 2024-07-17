@@ -1,18 +1,27 @@
+"""
+Player List:    {"id" : 0, "players" : ["Tobi", "Udolf", "Rudolf"]}
+Start game:     {"id" : 1}
+New question:   {"id" : 2, "question_index" : 0, "question" : "Was los?", "answers" : ["Hö", "Hä", "Hey", "Ha"]}
+Submit answers: {"id" : 3, "auth_token" : "...", "question_index" : 0, "answer" : 4, "lobbyCode" : "ABC143"}
+Get Question:   {"id" : 4, "auth_token" : "..."}
+"""
+
 from crypt import methods
-from flask import Flask, render_template, request, redirect, flash, session
+from blinker import Namespace
+from flask import Flask, render_template, request, redirect, flash, session, Response, make_response
 from markupsafe import escape
 from spiellogik import *
 from login import login as a_login, register as a_register, psycopg2Error
 import jwt
 import datetime
+from flask_socketio import SocketIO
+import json
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+socketio = SocketIO(app)
 
 gs: GameState = GameState()
-
-
-# validLobbyKey: bool = True
 
 @app.route("/")
 def main_page():
@@ -22,21 +31,18 @@ def main_page():
     return render_template("index.html", auth_token=auth_token)
 
 
+
+
 @app.route("/lobby/<code>", methods=["GET", "POST"])
 def lobby(code):
     session.pop('_flashes', None)
-    auth_token: str = request.cookies.get('auth_token', None)
-    if not auth_token:
-        flash('Please log in or register to play', 'error')
-        return redirect("/")
-    decoded_auth_token = decode_token(auth_token)
-    username = decoded_auth_token['username']
-    global validLobbyKey
+    auth_cookie: str = request.cookies.get('auth_token', None)
     if request.method == "POST":
-        # print("lobby post")
         form = request.form
-        if form.get("lobbyFormType") == "create":
-            # print("creating lobby")
+        if form.get("lobbyFormType") == "create": # Create a lobby
+            if not auth_cookie: # Checks if is logged in
+                flash('Please log in or register to create a lobby!', 'error')
+                return redirect("/")
             game_settings = GameSettings(
                 int(form.get("numberOfQuestions")),
                 int(form.get("category")),
@@ -45,20 +51,49 @@ def lobby(code):
             )
             gs.create_lobby(code, game_settings)
 
-        currentLobby: Optional[Lobby] = gs.get_lobby_by_code(code)
-        if currentLobby is None:
-            return no_valid_lobby()
-        joining_player: Player = Player(username)
-        currentLobby.add_player(joining_player)
+        elif form.get("lobbyFormType") == "guest": # Guest joining lobby
+            current_lobby: Optional[Lobby] = gs.get_lobby_by_code(code)
+            if current_lobby is None:
+                return no_valid_lobby()
+            username: str = form.get("guestUsernameInp")
+            players: list[str] = current_lobby.get_player_list()
+            if username in players:
+                flash('Username existiert bereits', 'message')
+                return render_template('lobby.html', lobbyInfo=None, lobbyCode=None, players=None)
+
+            token = generate_token(username, datetime.timedelta(hours=3))
+            session['auth_token'] = token
+
+        else: # Joining a lobby
+            currentLobby: Optional[Lobby] = gs.get_lobby_by_code(code)
+            if currentLobby is None:
+                return no_valid_lobby()
         return redirect(f"/lobby/{code}")
     elif request.method == "GET":
         # print("lobby get")
+        auth_token = session.get('auth_token', None)
+        if not auth_cookie and not auth_token:
+            flash('Please enter a username', 'message')
+            return render_template('lobby.html', lobbyInfo=None, lobbyCode=None, players=None)
+        if not auth_cookie:
+            auth_cookie = auth_token
         current_lobby = gs.get_lobby_by_code(code)
         if current_lobby is None:
             return no_valid_lobby()
+        decoded_auth_token = decode_token(auth_cookie)
+        username = decoded_auth_token['username']
+        joining_player: Player = Player(username)
+        current_lobby.add_player(joining_player)
+        send_players_in_lobby(current_lobby)
         players: list[str] = current_lobby.get_player_list()
-        return render_template("lobby.html", lobbyInfo=current_lobby.game_settings, lobbyCode=current_lobby.code, players=players)
+        resp = make_response(render_template("lobby.html", lobbyInfo=current_lobby.game_settings, lobbyCode=current_lobby.code, players=players))
+        resp.set_cookie('auth_token', auth_cookie)
+        return resp
 
+
+def send_players_in_lobby(lobby: Lobby):
+    msg = {"id": 0, "players": lobby.get_player_list()}
+    socketio.emit("message", json.dumps(msg), namespace="")
 
 @app.route("/lobby/<code>/leave", methods=["GET", "POST"])
 def leave_lobby(code):
@@ -71,7 +106,11 @@ def leave_lobby(code):
     players: list[Player] = current_lobby.get_players()
     leaving_player: Player = next((player for player in players if player.username == leaving_player_username), None)
     current_lobby.remove_player(leaving_player)
+    send_players_in_lobby(current_lobby)
+
     return redirect("/")
+
+
 
 
 @app.route("/lobby/<code>/start", methods=["GET"])
@@ -90,8 +129,29 @@ def start_game(code):
     #if (len(lobby.get_players()) < 2): 
     #    return redirect(f"/lobby/{code}") # Not enough players
     gs.start_game(gs.get_id(code))
+    msg = {"id":1}
+    socketio.emit("message", json.dumps(msg), namespace="")
+
     print("Started Game")
     return redirect(f"/game/{code}")
+
+
+@socketio.on('message')
+def handle_message(data_raw):
+    print(f"Recieved {data_raw}")
+    data = json.loads(data_raw)
+
+
+    game: Optional[Game] = gs.get_game_by_code(data["lobbyCode"])
+    if data["question"] != game.current_question: return 
+    if not game: return
+
+    if (data["id"] == 3):
+        player: Optional[Player] = gs.get_player_by_username(decode_token(data["auth_token"])["username"])
+        if not player: return
+        game.answer(player, data["answer"])
+        
+    
 
 @app.route("/game/<code>", methods=["GET"])
 def game_page(code):
@@ -108,9 +168,6 @@ def game_page(code):
     q: Question = game.get_current_question()
     
     return render_template("game.html", lobbyCode=code, question=q.question, answers=q.answers)
-
-
-
 
 
 @app.route("/login", methods=["POST"])
@@ -145,20 +202,17 @@ def register():
             return redirect("/")
         
 
-
-
-
 # Hilfsfunktionen
 def no_valid_lobby():
     # print("no valid lobby")
-    flash('Bitte einen gültigen Lobby code eingeben', 'error')
+    flash('Diese Lobby existiert nicht', 'error')
     return redirect("/")
 
 
-def generate_token(username: str):
+def generate_token(username: str, lifetime: datetime.timedelta = datetime.timedelta(days=3)):
     return jwt.encode({
         'username': username,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=3)
+        'exp': datetime.datetime.utcnow() + lifetime
     }, app.secret_key, algorithm='HS256')
 
 def decode_token(token: str):

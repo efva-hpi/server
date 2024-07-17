@@ -6,6 +6,20 @@
         
     </head>
     <body>
+        {% with messages = get_flashed_messages(category_filter=['message']) %}
+        {% if messages %}
+        <dialog id="messageDialog">
+            <form action="#" method="POST">
+                {%- for msg in messages %}
+                <input type="hidden" name="lobbyFormType" value="guest">
+                <label for="guestUsernameInp">{{ msg }} </label>
+                <input type="text" id="guestUsernameInp" name="guestUsernameInp" required>
+                {% endfor -%}
+                <button type="submit" id="submitUsernameBtn">Join</button>
+            </form>
+        </dialog>
+        {% endif %}
+        {% endwith %}
         <h1>Lobby code: {{lobbyCode}}</h1>
         <img id='qrcode' 
         src="" 
@@ -20,14 +34,57 @@
             <li>Schwierigkeit: {{lobbyInfo.difficulty}}</li>
             <li>Spielmodus: {{lobbyInfo.game_type}}</li>
         </ul>
+        {% if players %}
         <h2>Spieler: </h2>
-        <ul>
-            {% for player in players %}
-                <li>{{ player }}</li>
-            {% endfor %}
+        <ul id="playerListUL">
+            {%- for player in players %}
+                <li>{{player}}</li>
+            {% endfor -%}
         </ul>
+        {% endif %}
         <button type="button" onclick="window.location.href += '/leave'">Lobby verlassen</button>
         <button type="button" onclick="window.location.href += '/start'">Spiel starten</button>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+        <script type="text/javascript" charset="utf-8">
+            let playerListUL = document.getElementById('playerListUL');
+            var socket = io();
+            socket.on('connect', function() {
+                // socket.emit('message', {data: 'I\'m connected!'});
+            });
+            socket.on('message', function(response) {
+                console.log('Received message:', response);
+                const jsonResponse = JSON.parse(response);
+                console.log(jsonResponse);
+                switch (jsonResponse['id']) {
+                    case 0:
+                        // Spielerliste
+                        console.log("Loading players");
+                        playerListUL.innerHTML = '';
+                        let players = jsonResponse['players'];
+                        for (let i=0; i<players.length; i++) {
+                            console.log("This is ", players[i])
+                            let newListItem = document.createElement('li');
+                            newListItem.textContent = players[i];
+                            playerListUL.appendChild(newListItem);
+                        }
+                        break;
+                    case 1:
+                        // Spiel starten
+                        const currentUrl= href.slice(0, -12);
+                        const currentLobbyCode = href.slice(-6);
+                        const gameUrl= `${currentUrl}game/${currentLobbyCode}`;
+                        console.l
+                        console.log("CurrentUrl ", currentUrl);
+                        console.log("CurrentLobbyCode ", currentLobbyCode);
+                        console.log("gameUrl ", gameUrl);
+                        window.location.href = gameUrl;
+                        break;
+                    default:
+                        window.location.href += '/leave';
+                        // neue Frage
+                }
+            });
+        </script>
         <script src="../static/lobby.js"></script>
     </body>
 </html>
