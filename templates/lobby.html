@@ -6,6 +6,20 @@
         
     </head>
     <body>
+        {% with messages = get_flashed_messages(category_filter=['message']) %}
+        {% if messages %}
+        <dialog id="messageDialog">
+            <form action="#" method="POST">
+                {%- for msg in messages %}
+                <input type="hidden" name="lobbyFormType" value="guest">
+                <label for="guestUsernameInp">{{ msg }} </label>
+                <input type="text" id="guestUsernameInp" name="guestUsernameInp" required>
+                {% endfor -%}
+                <button type="submit" id="submitUsernameBtn">Join</button>
+            </form>
+        </dialog>
+        {% endif %}
+        {% endwith %}
         <h1>Lobby code: {{lobbyCode}}</h1>
         <img id='qrcode' 
         src="" 
@@ -20,12 +34,14 @@
             <li>Schwierigkeit: {{lobbyInfo.difficulty}}</li>
             <li>Spielmodus: {{lobbyInfo.game_type}}</li>
         </ul>
+        {% if players %}
         <h2>Spieler: </h2>
         <ul>
             {% for player in players %}
                 <li>{{ player }}</li>
             {% endfor %}
         </ul>
+        {% endif %}
         <button type="button" onclick="window.location.href += '/leave'">Lobby verlassen</button>
         <button type="button" onclick="window.location.href += '/start'">Spiel starten</button>
         <script src="../static/lobby.js"></script>

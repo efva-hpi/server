@@ -1,5 +1,5 @@
 from crypt import methods
-from flask import Flask, render_template, request, redirect, flash, session
+from flask import Flask, render_template, request, redirect, flash, session, Response, make_response
 from markupsafe import escape
 from spiellogik import *
 from login import login as a_login, register as a_register, psycopg2Error
@@ -25,18 +25,13 @@ def main_page():
 @app.route("/lobby/<code>", methods=["GET", "POST"])
 def lobby(code):
     session.pop('_flashes', None)
-    auth_token: str = request.cookies.get('auth_token', None)
-    if not auth_token:
-        flash('Please log in or register to play', 'error')
-        return redirect("/")
-    decoded_auth_token = decode_token(auth_token)
-    username = decoded_auth_token['username']
-    global validLobbyKey
+    auth_cookie: str = request.cookies.get('auth_token', None)
     if request.method == "POST":
-        # print("lobby post")
         form = request.form
-        if form.get("lobbyFormType") == "create":
-            # print("creating lobby")
+        if form.get("lobbyFormType") == "create": # Create a lobby
+            if not auth_cookie: # Checks if is logged in
+                flash('Please log in or register to create a lobby!', 'error')
+                return redirect("/")
             game_settings = GameSettings(
                 int(form.get("numberOfQuestions")),
                 int(form.get("category")),
@@ -45,17 +40,40 @@ def lobby(code):
             )
             gs.create_lobby(code, game_settings)
 
-        currentLobby: Optional[Lobby] = gs.get_lobby_by_code(code)
-        if currentLobby is None:
-            return no_valid_lobby()
-        joining_player: Player = Player(username)
-        currentLobby.add_player(joining_player)
+        elif form.get("lobbyFormType") == "guest": # Guest joining lobby
+            current_lobby: Optional[Lobby] = gs.get_lobby_by_code(code)
+            if current_lobby is None:
+                return no_valid_lobby()
+            username: str = form.get("guestUsernameInp")
+            players: list[str] = current_lobby.get_player_list()
+            if username in players:
+                flash('Username existiert bereits', 'message')
+                return render_template('lobby.html', lobbyInfo=None, lobbyCode=None, players=None)
+
+            token = generate_token(username, datetime.timedelta(hours=3))
+            session['auth_token'] = token
+
+        else: # Joining a lobby
+            currentLobby: Optional[Lobby] = gs.get_lobby_by_code(code)
+            if currentLobby is None:
+                return no_valid_lobby()
         return redirect(f"/lobby/{code}")
     elif request.method == "GET":
         # print("lobby get")
+        auth_token = session.get('auth_token', None)
+        if auth_token:
+            session.pop('auth_token')
+            auth_cookie = auth_token
+        elif not auth_cookie:
+            flash('Please enter a username', 'message')
+            return render_template('lobby.html', lobbyInfo=None, lobbyCode=None, players=None)
+        decoded_auth_token = decode_token(auth_cookie)
+        username = decoded_auth_token['username']
         current_lobby = gs.get_lobby_by_code(code)
         if current_lobby is None:
             return no_valid_lobby()
+        joining_player: Player = Player(username)
+        current_lobby.add_player(joining_player)
         players: list[str] = current_lobby.get_player_list()
         return render_template("lobby.html", lobbyInfo=current_lobby.game_settings, lobbyCode=current_lobby.code, players=players)
 
@@ -155,10 +173,10 @@ def no_valid_lobby():
     return redirect("/")
 
 
-def generate_token(username: str):
+def generate_token(username: str, lifetime: datetime.timedelta = datetime.timedelta(days=3)):
     return jwt.encode({
         'username': username,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=3)
+        'exp': datetime.datetime.utcnow() + lifetime
     }, app.secret_key, algorithm='HS256')
 
 def decode_token(token: str):

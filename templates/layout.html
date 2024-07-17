@@ -1,8 +1,8 @@
 {% with errors = get_flashed_messages(category_filter=['error']) %}
 {% if errors %}
 <dialog id="errorDialog" open>
-{%- for msg in errors %}
-    <p>{{msg}}</p>
+{%- for error in errors %}
+    <p>{{error}}</p>
     {% endfor -%}
     <button id="closeErrorDialogBtn">Verstanden</button>
 </dialog>
