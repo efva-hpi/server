@@ -124,9 +124,9 @@ def start_game(code):
     if (gs.get_game_by_id(code) != None): return redirect(f"/game/{code}") # Redirect to game page if already started
 
     lobby: Optional[Lobby] = gs.get_lobby_by_code(code)
-    if lobby == None: 
+    if lobby is None:
         flash("Lobby nicht gefunden", "error")
-        return redirect("/") # Check if lobby exists
+        return redirect("/")  # Check if lobby exists
     #if (len(lobby.get_players()) < 2): 
     #    return redirect(f"/lobby/{code}") # Not enough players
 
@@ -168,7 +168,7 @@ def handle_message(data_raw):
     game: Optional[Game] = gs.get_game_by_code(data["lobby_code"])
     
     if game == None: 
-        write_send_log(f"Lobby code {data["lobby_code"]} not found")
+        write_send_log(f"Lobby code {data['lobby_code']} not found")
         return
 
 
@@ -182,7 +182,7 @@ def handle_message(data_raw):
         write_send_log(player)
         if player == None: return
         game.answer(player, data["answer"])
-        if game.next_question() and game.current_question == (len(game.questions)-1):
+        if game.next_question() and game.current_question == (len(game.questions)):
             msg = {"id":5, "lobby_code":data["lobby_code"]}
             socketio.emit("message", json.dumps(msg), namespace="")
 
@@ -207,6 +207,16 @@ def game_page(code):
     
     return render_template("game.html", lobbyCode=code)
 
+
+@app.route("/scoreboard/<code>", methods=["GET"])
+def load_scoreboard(code):
+    finished_game: Game = gs.get_game_by_code(code)
+    players: list[Player] = finished_game.player_list
+    scores: list[int] = finished_game.calculate_total_points()
+    players_scores_list = zip(players, scores)
+    sorted_players_scores = sorted(players_scores_list, key=lambda x: x[1], reverse=True)
+
+    return render_template("scoreboard.html", lobbyCode=code, playersScores=sorted_players_scores)
 
 @app.route("/login", methods=["POST"])
 def login():
