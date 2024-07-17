@@ -14,7 +14,7 @@
         </div>
         <div id="wrapper">
             {% include "layout.html" ignore missing %}
-            {% if auth_token %}
+            {% if not auth_token %}
             <div id="authButtons">
                 <button id="loginBtn">Login</button>
                 <button id="registerBtn">Account erstellen</button>

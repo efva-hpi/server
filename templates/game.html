@@ -41,6 +41,7 @@
                         // New Question
                         console.log("New question yay");
                         if(jsonResponse['question_index'] < questionIndexSpan.innerText) break;
+                        answerButtonsDiv.innerHTML = "";
                         const currentLobbyCode = window.location.href.slice(-6);
                         questionIndexSpan.innerText = jsonResponse['question_index'];
                         currentQuestionSpan.innerHTML = jsonResponse['question'];
@@ -52,6 +53,7 @@
                             newAnswerButton.id = `answerOption${i}Btn`;
                             newAnswerButton.addEventListener('click', () => {
                                 socket.emit('message', `{"id" : 3, "auth_token" : "${Cookies.get('auth_token')}", "question_index" : ${jsonResponse['question_index']}, "answer" : ${i}, "lobby_code" : "${currentLobbyCode}"}`);
+                                console.log("Answer pressed: ", i);
                             });
                             answerButtonsDiv.appendChild(newAnswerButton);
                         }
