@@ -82,17 +82,20 @@ function getFormAction(form: HTMLFormElement) {
             return true;
     }
 }
-
-registerPasswordInp.onchange = validatePassword;
-confirmPasswordInp.onkeyup = validatePassword;
+if (registerPasswordInp){
+    registerPasswordInp.onchange = validatePassword;
+    confirmPasswordInp.onkeyup = validatePassword;
+}
 
 // Functions
 
 function validatePassword() {
-    if (registerPasswordInp.value != confirmPasswordInp.value) {
-        confirmPasswordInp.setCustomValidity("Passwords Don't Match");
-        return false;
-    } else {
-        confirmPasswordInp.setCustomValidity('');
+    if(registerPasswordInp && confirmPasswordInp) {
+        if (registerPasswordInp.value != confirmPasswordInp.value) {
+            confirmPasswordInp.setCustomValidity("Passwords Don't Match");
+            return false;
+        } else {
+            confirmPasswordInp.setCustomValidity('');
+        }
     }
 }
