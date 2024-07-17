@@ -100,13 +100,14 @@ def game_page(code):
         flash("Du bist noch eingeloggt", "error")
         return redirect("/")
     player: Optional[Player] = gs.get_player_by_username(decode_token(auth_token)['username'])
-    print("ahhhhhhh")
     game: Optional[Game] = gs.get_game_by_id(gs.get_id(code))
     if (game == None): 
         flash(f"Spiel {code} nicht gefunden", "error")
         return redirect("/") # Check if game exists
-
-    return render_template("game.html", lobbyCode=code, question="Frag", answer1="1", answer2="2", answer3="3", answer4="4")
+    
+    q: Question = game.get_current_question()
+    
+    return render_template("game.html", lobbyCode=code, question=q.question, answers=q.answers)
 
 
 
