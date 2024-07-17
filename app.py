@@ -22,6 +22,7 @@ def main_page():
     return render_template("index.html", auth_token=auth_token)
 
 
+
 @app.route("/lobby/<code>", methods=["GET", "POST"])
 def lobby(code):
     session.pop('_flashes', None)
@@ -126,9 +127,6 @@ def game_page(code):
     q: Question = game.get_current_question()
     
     return render_template("game.html", lobbyCode=code, question=q.question, answers=q.answers)
-
-
-
 
 
 @app.route("/login", methods=["POST"])
