@@ -12,6 +12,11 @@ def write_send_log(data):
     file.write(str(data) + "\n")
     file.close()
 
+def write_answer_log(data):
+    file = open("log_answer.txt", "a")
+    file.write(str(data) + "\n")
+    file.close()
+
 
 class Player:
     def __init__(self, username: str) -> None:
@@ -187,9 +192,11 @@ class Game:
         Returns true if successful.
         """
         answers = self.answers[self.current_question]
+        write_answer_log(answers)
+        write_answer_log(self.player_list)
         for player in self.player_list:
-            for a in answers:
-                if player.username != a.player.username: return False
+            write_answer_log(f"Answer name {[a.player.username for a in answers]}, Player list {[p.username for p in self.player_list]}")
+            if not (player.username in [a.player.username for a in answers]): return False
         return True
 
     def answer(self, player: Player, answer: int, timeout: bool = False) -> bool:
@@ -198,10 +205,14 @@ class Game:
         Returns true if successful.
         """
         print(f"Answer {player}, n: {answer}, timeout: {timeout}")
-        if player in self.player_list:
+        #write_answer_log(f"Answer {player}, n: {answer}, timeout: {timeout}, player_list: {self.player_list}")
+        if player.username in [p.username for p in self.player_list]:
             a: Answer = Answer(player, answer, time_ns(), timeout=timeout)
-            if not (a in self.answers[self.current_question]):
+            #write_answer_log(a.player.username)
+            #write_answer_log([a.player.username for a in self.answers[self.current_question]]   )
+            if not (player.username in [a.player.username for a in self.answers[self.current_question]]):
                 self.answers[self.current_question].append(a)
+                #write_answer_log(f"Submitted answer {a}")
                 print(f"Submitted answer {a}")
                 return True
         return False
