@@ -214,8 +214,8 @@ def load_scoreboard(code):
     scores: list[int] = finished_game.calculate_total_points()
     players_scores_list = zip(players, scores)
     sorted_players_scores = sorted(players_scores_list, key=lambda x: x[1], reverse=True)
-
-    return render_template("scoreboard.html", lobbyCode=code, players=players, scores=scores, playersScores=sorted_players_scores)
+    write_log([players, scores, players_scores_list, sorted_players_scores])
+    return render_template("scoreboard.html", lobbyCode=code, playersScores=sorted_players_scores)
 
 @app.route("/login", methods=["POST"])
 def login():
