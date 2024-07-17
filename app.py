@@ -6,7 +6,7 @@ from spiellogik import *
 from login import login as a_login, register as a_register, psycopg2Error
 import jwt
 import datetime
-from flask_socketio import SocketIO, send
+from flask_socketio import SocketIO, emit
 import json
 
 app = Flask(__name__)
@@ -83,7 +83,7 @@ def lobby(code):
 
 def send_players_in_lobby(lobby: Lobby):
     msg = {"id":0, "players":lobby.get_player_list()}
-    send(json.dumps(msg), namespace=f"/lobby/{lobby.code}")
+    emit("message", json.dumps(msg), namespace=f"/lobby/{lobby.code}")
 
 @app.route("/lobby/<code>/leave", methods=["GET", "POST"])
 def leave_lobby(code):
@@ -120,15 +120,11 @@ def start_game(code):
     #    return redirect(f"/lobby/{code}") # Not enough players
     gs.start_game(gs.get_id(code))
     msg = {"id":1}
-    send(json.dumps(msg), namespace="")
+    emit("message", json.dumps(msg), namespace="")
 
     print("Started Game")
     return redirect(f"/game/{code}")
 
-
-@socketio.on('message')
-def on_message(message):
-    send(message=message)
 
 @app.route("/game/<code>", methods=["GET"])
 def game_page(code):
