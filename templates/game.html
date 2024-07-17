@@ -8,11 +8,67 @@
             Spiel {{lobbyCode}}
         </h1>
         <script src="../static/game.js"></script>
-        <h3>{{question}}</h3>
-        
-        {%for a in answers%}
-        <button>{{a}}</button>
-        {%endfor%}
+        <h3><span id="questionIndexSpan"></span>: <span id="currentQuestionSpan"></span> </h3>
+        <div id="answerButtonsDiv"></div>
 
     </body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.1/js.cookie.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+        <script type="text/javascript" charset="utf-8">
+            const questionIndexSpan = document.getElementById('questionIndexSpan');
+            const currentQuestionSpan = document.getElementById('currentQuestionSpan');
+            const answerButtonsDiv = document.getElementById('answerButtonsDiv');
+            const socket = io();
+            socket.on('connect', function() {
+                // Get Question
+                questionIndexSpan.innerText = "0";
+                const currentLobbyCode = window.location.href.slice(-6);
+                socket.emit('message', {data: {"id": 4, "auth_token": Cookies.get('auth_token'), "lobby_code" : currentLobbyCode}});
+            });
+            socket.on('message', function(response) {
+                console.log('Received message:', response);
+                const jsonResponse = JSON.parse(response);
+                console.log(jsonResponse);
+                switch (jsonResponse['id']) {
+                    case 0:
+                        // Spielerliste
+                        break;
+                    case 1:
+                        // Spiel starten
+                        break;
+                    case 2:
+                        // New Question
+                        if(jsonResponse['question_index'] < questionIndexSpan.innerText) break;
+                        console.log("New question yay");
+                        const currentLobbyCode = window.location.href.slice(-6);
+                        questionIndexSpan.innerText = jsonResponse['question_index'];
+                        currentQuestionSpan.innerHTML = jsonResponse['question'];
+                        let answerOptions = jsonResponse['answers']
+                        for (let i=0; i<answerOptions.length; i++) {
+                            console.log("Answer ", i, ": ", answerOptions[i])
+                            let newAnswerButton = document.createElement('button');
+                            newAnswerButton.innerText = answerOptions[i];
+                            newAnswerButton.id = `answerOption${i}Btn`;
+                            newAnswerButton.addEventListener('click', () => {
+                                socket.emit('message', {data: {"id" : 3, "auth_token" : Cookies.get('auth_token'), "question_index" : jsonResponse['question_index'], "answer" : i, "lobby_code" : currentLobbyCode}});
+                            });
+                            answerButtonsDiv.appendChild(newAnswerButton);
+                        }
+                        break;
+                    case 3:
+                        // Submit Answer
+                        break;
+                    case 4:
+                        // Get Question
+                    default:
+                        goToHome()
+                        // neue Frage
+                }
+            });
+
+            function goToHome() {
+                window.location.href = window.location.href.slice(0, -12);
+            }
+        </script>
 </html>
