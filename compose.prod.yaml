@@ -11,7 +11,7 @@ services:
       efva-app-prod
     ports:
       - 3000:3000
-    entrypoint: ["mod_wsgi-express", "start-server", "wsgi.py", "--port", "3000", "--user", "www-data", "group", "www-data"]
+    entrypoint: ["mod_wsgi-express", "start-server", "wsgi.py", "--port", "3000", "--user", "www-data", "--group", "www-data"]
 
 volumes:
   efva_db_vol:
