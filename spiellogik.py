@@ -98,7 +98,7 @@ class Game:
         """
         Checks if an answer for a question is correct.
         """
-        return answer in question.answers
+        return answer.answer == question.correct_answer
 
     def _calculate_points_question_player(self, question_id: int, player: Player) -> int:
         """
@@ -109,8 +109,8 @@ class Game:
         # if timestamp is None: raise Exception("Invalid question time")
 
         answer: Optional[Answer] = self.get_answer_player(question_id, player)
-        if not answer: return 0 #raise Exception("Player has no answer for the question")
-        if (answer.timeout): return 0
+        if answer is None: return 0 #raise Exception("Player has no answer for the question")
+        #if (answer.timeout): return 0 # TODO
 
         question: Question = self.questions[question_id]
         return int(self._check_question(question, answer))
@@ -144,7 +144,7 @@ class Game:
         Returns the total points for all players and all currently answered questions
         """
         points: list[int] = [0 for p in self.player_list]
-        for i in range(self.current_question + 1):
+        for i in range(len(self.questions)):
             points = self._add_lists(points, self.calculate_points_question(i))
 
         return points
@@ -155,7 +155,7 @@ class Game:
         Can be none.
         """
         for a in self.answers[question_id]:
-            if a.player == player:
+            if a.player.username == player.username:
                 return a
         return None
 
