@@ -5,7 +5,7 @@ from spiellogik import *
 from login import login as a_login, register as a_register, psycopg2Error
 import jwt
 import datetime
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, send
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -116,6 +116,7 @@ def start_game(code):
 @socketio.on('message')
 def on_message(message):
     print(message)
+    send(message=message)
 
 @app.route("/game/<code>", methods=["GET"])
 def game_page(code):
