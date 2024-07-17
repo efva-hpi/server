@@ -2,6 +2,8 @@
 <html>
     <head>
         <title>EFVA</title>
+        <link rel="icon" type="image/svg+xml" href="../static/favicon.svg">
+        <link rel="icon" type="image/png" href="../static/favicon.png">
     </head>
     <body>
         <h1>
@@ -24,7 +26,7 @@
                 // Get Question
                 questionIndexSpan.innerText = "0";
                 const currentLobbyCode = window.location.href.slice(-6);
-                socket.emit('message', `{"id": 4, "auth_token": "${Cookies.get('auth_token')}", "lobby_code" : "${currentLobbyCode}"}`);
+                socket.emit('message', `{"id": 4, "auth_token": "${Cookies.get('auth_token')}", "lobby_code": "${currentLobbyCode}"}`);
             });
             socket.on('message', function(response) {
                 console.log('Received message:', response);
@@ -52,7 +54,7 @@
                             newAnswerButton.innerText = answerOptions[i];
                             newAnswerButton.id = `answerOption${i}Btn`;
                             newAnswerButton.addEventListener('click', () => {
-                                socket.emit('message', `{"id" : 3, "auth_token" : "${Cookies.get('auth_token')}", "question_index" : ${jsonResponse['question_index']}, "answer" : ${i}, "lobby_code" : "${currentLobbyCode}"}`);
+                                socket.emit('message', `{"id": 3, "auth_token": "${Cookies.get('auth_token')}", "question_index": ${jsonResponse['question_index']}, "answer": ${i}, "lobby_code": "${currentLobbyCode}"}`);
                                 console.log("Answer pressed: ", i);
                             });
                             answerButtonsDiv.appendChild(newAnswerButton);
