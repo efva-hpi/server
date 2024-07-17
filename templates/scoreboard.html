@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EFVA</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <h1>
+        Spiel {{lobbyCode}}
+    </h1>
+    <ol id="playerListUL">
+        {%- for player in players %}
+            <li>{{player}}:</li>
+        {% endfor -%}
+    </ol>
+    
+</body>
+</html>
