@@ -5,6 +5,7 @@ import copy
 from typing import Optional
 import requests
 import json
+import threading
 
 
 class Player:
@@ -41,6 +42,7 @@ class Answer:
     player: Player
     answer: int
     time_stamp: int
+    timeout: bool
 
 
 class Game:
@@ -55,6 +57,8 @@ class Game:
         self.current_question = 0
 
         self.answers: list[list[Answer]] = [[] for i in range(len(self.questions))]
+
+        self.start_timer(0) # Start timer for first question
 
     def _calculate_points_time(self, question_time: Optional[int], answer_time: Optional[int],
                                correct_answer: bool) -> int:
@@ -77,7 +81,7 @@ class Game:
                 points += round((1.0 - time_taken_seconds / max_time) * 400)  # you can get up to 400 more points
 
         return points
-
+    
     def _check_question(self, question: Question, answer: Answer) -> bool:
         """
         Checks if an answer for a question is correct.
@@ -94,9 +98,24 @@ class Game:
 
         answer: Optional[Answer] = self.get_answer_player(question_id, player)
         if not answer: raise Exception("Player has no answer for the question")
+        if (answer.timeout): return 0
 
         question: Question = self.questions[question_id]
         return self._calculate_points_time(timestamp, answer.time_stamp, self._check_question(question, answer))
+
+    # stop_question(i_question)
+    # callback next question
+    # start_timer(i_question)
+
+    def stop_question(self, question: int):
+        if (self.current_question == question):
+            for p in self.player_list:
+                if (self.get_answer_player(question, p) == None):
+                    self.answer(p, -1, True)
+            self.next_question()
+    
+    def start_timer(self, question: int):
+        t = threading.Timer(30.0, self.stop_question, args=(question))
 
     def calculate_points_question(self, question: int) -> list[int]:
         """
@@ -132,7 +151,7 @@ class Game:
     @staticmethod
     def get_questions(amount: int, difficulty: str = "", category: int = 0) -> list[Question]:
         """
-        Fetches all questions from the question database. NOT IMPLEMENTED!
+        Fetches all questions from the question database.
         """
         url = "https://opentdb.com/api.php"
         params = {"amount": amount, "type": "multiple"}
@@ -154,7 +173,6 @@ class Game:
             answers = q["incorrect_answers"]
             answers.insert(pos, q["correct_answer"])
             questions.append(Question(q["question"], q["category"], answers, pos))
-
         return questions
 
     def all_answered(self) -> bool:
@@ -168,13 +186,13 @@ class Game:
                 if player.username != a.player.username: return False
         return True
 
-    def answer(self, player: Player, answer: int) -> bool:
+    def answer(self, player: Player, answer: int, timeout: bool = False) -> bool:
         """
         Submits an answer for a given player object.
         Returns true if successful.
         """
         if player in self.player_list:
-            a: Answer = Answer(player, answer, time_ns())
+            a: Answer = Answer(player, answer, time_ns(), timeout=timeout)
             if not (a in self.answers[self.current_question]):
                 self.answers[self.current_question].append(a)
                 return True
@@ -188,6 +206,7 @@ class Game:
         if self.all_answered():
             if self.current_question < len(self.questions) - 1:
                 self.current_question += 1
+                self.start_timer(self.current_question)
                 return True
         return False
 
@@ -268,7 +287,7 @@ class GameState:
 
     def check_nickname(self, nickname: str) -> bool:
         """
-        Checks if a given nickname is free
+        Checks if a given nickname is already in use.
         """
         for p in self.players:
             if p.username == nickname: return True
@@ -345,6 +364,18 @@ class GameState:
             return True
         else:
             return False
+        
+    def get_game_by_code(self, code: str) -> Optional[Game]:
+        """
+        Returns the game object for a code.
+        Can be none.
+        """
+        id: Optional[int] = self.get_id(code)
+        if id:
+            for g in self.games:
+                if g.id == id:
+                    return g
+        return None
 
     def get_game_by_id(self, id: int) -> Optional[Game]:
         """

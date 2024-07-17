@@ -127,6 +127,22 @@ def start_game(code):
     return redirect(f"/game/{code}")
 
 
+@socketio.on('message')
+def handle_message(data_raw):
+    print(f"Recieved {data_raw}")
+    data = json.loads(data_raw)
+
+
+    game: Optional[Game] = gs.get_game_by_code(data["lobbyCode"])
+    if not game: return
+
+    if (data["id"] == 3):
+        player: Optional[Player] = gs.get_player_by_username(decode_token(data["auth_token"])["username"])
+        if not player: return
+        game.answer(player, data["answer"])
+        
+    
+
 @app.route("/game/<code>", methods=["GET"])
 def game_page(code):
     auth_token = request.cookies.get('auth_token', None)
