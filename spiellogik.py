@@ -227,6 +227,7 @@ class Game:
                 self.current_question += 1
                 self.start_timer(self.current_question)
                 self.on_next_question(self.questions[self.current_question], self.current_question)
+                self.question_timestamps[self.current_question] = time_ns()
                 return True
         return False
 
