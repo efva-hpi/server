@@ -138,7 +138,7 @@ def start_game(code):
     print("Started Game")
     return redirect(f"/game/{code}")
 
-def send_next_question(question: Question, index: int) -> None: 
+def send_next_question(question: Question, index: int) -> None:
     msg = {"id" : 2, "question_index": index, "question": question.question, "answers": question.answers}
     socketio.emit("message", json.dumps(msg), namespace="")
 
@@ -159,7 +159,7 @@ def handle_message(data_raw):
 
     if (data["id"] == 4):
         send_next_question(game.questions[game.current_question], game.current_question)
-        
+
     
 
 @app.route("/game/<code>", methods=["GET"])
@@ -174,9 +174,7 @@ def game_page(code):
         flash(f"Spiel {code} nicht gefunden", "error")
         return redirect("/") # Check if game exists
     
-    q: Question = game.get_current_question()
-    
-    return render_template("game.html", lobbyCode=code, question=q.question, answers=q.answers)
+    return render_template("game.html", lobbyCode=code)
 
 
 @app.route("/login", methods=["POST"])
