@@ -46,7 +46,7 @@ class Answer:
 
 
 class Game:
-    def __init__(self, players: list[Player], id: int, game_settings: GameSettings, on_next_question, question_amount: int = 10) -> None:
+    def __init__(self, players: list[Player], id: int, game_settings: GameSettings, on_next_question = None, question_amount: int = 10) -> None:
         self.id: int = id
         self.player_list: list[Player] = players
 
@@ -60,7 +60,7 @@ class Game:
         self.answers: list[list[Answer]] = [[] for i in range(len(self.questions))]
 
         self.start_timer(0) # Start timer for first question
-        self.on_next_question(self.questions[0])
+        self.on_next_question(self.questions[0], 0)
         
 
     def _calculate_points_time(self, question_time: Optional[int], answer_time: Optional[int],
@@ -273,11 +273,11 @@ class Lobby:
     #            number //= len(alph)
     #        return code
 
-    def start_game(self) -> Game:
+    def start_game(self, on_next_question) -> Game:
         """
         Starts a game and returns the game object
         """
-        game: Game = Game(self._player_list, self.id, copy.deepcopy(self.game_settings))
+        game: Game = Game(self._player_list, self.id, copy.deepcopy(self.game_settings), on_next_question=on_next_question)
         return game
 
 
@@ -356,14 +356,14 @@ class GameState:
                 return l
         return None
 
-    def start_game(self, id: int) -> bool:
+    def start_game(self, id: int, on_next_question) -> bool:
         """
         Starts a game for a given lobby id.
         Returns true if successful.
         """
         lobby = self.get_lobby_by_id(id)
         if lobby:
-            self.games.append(lobby.start_game())
+            self.games.append(lobby.start_game(on_next_question))
             return True
         else:
             return False

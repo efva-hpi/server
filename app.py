@@ -126,14 +126,14 @@ def start_game(code):
         return redirect("/") # Check if lobby exists
     #if (len(lobby.get_players()) < 2): 
     #    return redirect(f"/lobby/{code}") # Not enough players
-    gs.start_game(gs.get_id(code))
+
+    gs.start_game(gs.get_id(code), send_next_question)
 
     game: Optional[Game] = gs.get_game_by_code(code)
-    if not game: return
+
 
     msg = {"id":1}
     socketio.emit("message", json.dumps(msg), namespace="")
-    game.on_next_question = send_next_question
 
     print("Started Game")
     return redirect(f"/game/{code}")
