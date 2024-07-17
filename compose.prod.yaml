@@ -5,6 +5,8 @@ services:
       - ./efva.sql:/docker-entrypoint-initdb.d/efva.sql
     environment:
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    ports: !override
+      - 127.0.0.1:5432:5432
     secrets:
       - db_password
 
