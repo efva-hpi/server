@@ -78,8 +78,39 @@ def leave_lobby(code):
 def start_game(code):
     auth_token = request.cookies.get('auth_token', None)
     if not auth_token:
-        redirect("/")
-    return render_template("game.html", lobbyCode=code)
+        flash("You must be logged in", "error")
+        return redirect("/")
+    
+    if (gs.get_game_by_id(code) != None): return redirect(f"/game/{code}") # Redirect to game page if already started
+
+    lobby: Optional[Lobby] = gs.get_lobby_by_code(code)
+    if lobby == None: 
+        flash("Lobby nicht gefunden", "error")
+        return redirect("/") # Check if lobby exists
+    #if (len(lobby.get_players()) < 2): 
+    #    return redirect(f"/lobby/{code}") # Not enough players
+    gs.start_game(gs.get_id(code))
+    print("Started Game")
+    return redirect(f"/game/{code}")
+
+@app.route("/game/<code>", methods=["GET"])
+def game_page(code):
+    auth_token = request.cookies.get('auth_token', None)
+    if not auth_token:
+        flash("Du bist noch eingeloggt", "error")
+        return redirect("/")
+    player: Optional[Player] = gs.get_player_by_username(decode_token(auth_token)['username'])
+    print("ahhhhhhh")
+    game: Optional[Game] = gs.get_game_by_id(gs.get_id(code))
+    if (game == None): 
+        flash(f"Spiel {code} nicht gefunden", "error")
+        return redirect("/") # Check if game exists
+
+    return render_template("game.html", lobbyCode=code, question="Frag", answer1="1", answer2="2", answer3="3", answer4="4")
+
+
+
+
 
 @app.route("/login", methods=["POST"])
 def login():

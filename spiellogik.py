@@ -354,3 +354,12 @@ class GameState:
             if g.id == id:
                 return g
         return None
+    
+    def get_player_by_username(self, username: str) -> Optional[Player]:
+        """
+        Returns a player object for a given username
+        """
+        for p in self.players:
+            if p.username == username:
+                return p
+        return None
