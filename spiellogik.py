@@ -69,6 +69,8 @@ class Game:
 
         self.answers: list[list[Answer]] = [[] for i in range(len(self.questions))]
 
+        self.question_timestamps[self.current_question] = time_ns()
+
         self.start_timer(0) # Start timer for first question
         
 
@@ -77,7 +79,7 @@ class Game:
         """
         Calculates the points using the answer and time to answer.
         """
-        if not (question_time and answer_time): raise Exception("Time is none")
+        if (question_time is None or answer_time is None): raise Exception("Time is none")
         if question_time > answer_time: raise Exception("Invalid time")
 
         time_taken_seconds = (answer_time - question_time) / 10e6  # time is measured in ns
@@ -105,16 +107,16 @@ class Game:
         Calculates the points for a given player for a given question
         """
         if question_id >= len(self.questions): raise Exception("Invalid question")
-        # timestamp: Optional[int] = self.question_timestamps[question_id]
-        # if timestamp is None: raise Exception("Invalid question time")
+        timestamp: Optional[int] = self.question_timestamps[question_id]
+        if timestamp is None: raise Exception("Invalid question time")
 
         answer: Optional[Answer] = self.get_answer_player(question_id, player)
         if answer is None: return 0 #raise Exception("Player has no answer for the question")
-        #if (answer.timeout): return 0 # TODO
+        if (answer.timeout): return 0 
 
         question: Question = self.questions[question_id]
-        return int(self._check_question(question, answer))
-        # return self._calculate_points_time(timestamp, answer.time_stamp, self._check_question(question, answer))
+        #return int(self._check_question(question, answer))
+        return self._calculate_points_time(timestamp, answer.time_stamp, self._check_question(question, answer))
     # TODO: callback next question
 
 
@@ -224,10 +226,12 @@ class Game:
         """
         if self.all_answered():
             if self.current_question < (len(self.questions) - 1):
+                
                 self.current_question += 1
                 self.start_timer(self.current_question)
-                self.on_next_question(self.questions[self.current_question], self.current_question)
                 self.question_timestamps[self.current_question] = time_ns()
+                self.on_next_question(self.questions[self.current_question], self.current_question)
+                
                 return True
         return False
 
