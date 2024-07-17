@@ -14,6 +14,7 @@
         </div>
         <div id="wrapper">
             {% include "layout.html" ignore missing %}
+            {% if auth_token %}
             <div id="authButtons">
                 <button id="loginBtn">Login</button>
                 <button id="registerBtn">Account erstellen</button>
@@ -40,6 +41,7 @@
                     </menu>
                 </form>
             </dialog>
+            {% endif %}
             <h1>efva - eine Frage, vier Antworten</h1>
             <button id="createLobbyBtn">Lobby erstellen</button>
             <dialog id="createLobbyDialog">
