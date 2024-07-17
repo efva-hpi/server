@@ -13,9 +13,6 @@ socketio = SocketIO(app)
 
 gs: GameState = GameState()
 
-
-# validLobbyKey: bool = True
-
 @app.route("/")
 def main_page():
     auth_token = session.get('auth_token', None)
@@ -172,7 +169,7 @@ def register():
 # Hilfsfunktionen
 def no_valid_lobby():
     # print("no valid lobby")
-    flash('Bitte einen gültigen Lobby code eingeben', 'error')
+    flash('Diese Lobby existiert nicht', 'error')
     return redirect("/")
 
 
