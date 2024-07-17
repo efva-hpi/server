@@ -46,7 +46,7 @@ class Answer:
 
 
 class Game:
-    def __init__(self, players: list[Player], id: int, game_settings: GameSettings, question_amount: int = 10) -> None:
+    def __init__(self, players: list[Player], id: int, game_settings: GameSettings, on_next_question, question_amount: int = 10) -> None:
         self.id: int = id
         self.player_list: list[Player] = players
 
@@ -55,10 +55,13 @@ class Game:
         self.questions: list[Question] = self.get_questions(question_amount)
         self.question_timestamps: list[Optional[int]] = [None for i in range(len(self.questions))]
         self.current_question = 0
+        self.on_next_question = on_next_question
 
         self.answers: list[list[Answer]] = [[] for i in range(len(self.questions))]
 
         self.start_timer(0) # Start timer for first question
+        self.on_next_question(self.questions[0])
+        
 
     def _calculate_points_time(self, question_time: Optional[int], answer_time: Optional[int],
                                correct_answer: bool) -> int:
@@ -103,9 +106,8 @@ class Game:
         question: Question = self.questions[question_id]
         return self._calculate_points_time(timestamp, answer.time_stamp, self._check_question(question, answer))
 
-    # stop_question(i_question)
-    # callback next question
-    # start_timer(i_question)
+    # TODO: callback next question
+
 
     def stop_question(self, question: int):
         if (self.current_question == question):
@@ -207,6 +209,7 @@ class Game:
             if self.current_question < len(self.questions) - 1:
                 self.current_question += 1
                 self.start_timer(self.current_question)
+                self.on_next_question(self.questions[self.current_question], self.current_question)
                 return True
         return False
 

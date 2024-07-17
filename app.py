@@ -2,8 +2,8 @@
 Player List:    {"id" : 0, "players" : ["Tobi", "Udolf", "Rudolf"]}
 Start game:     {"id" : 1}
 New question:   {"id" : 2, "question_index" : 0, "question" : "Was los?", "answers" : ["Hö", "Hä", "Hey", "Ha"]}
-Submit answers: {"id" : 3, "auth_token" : "...", "question_index" : 0, "answer" : 4, "lobbyCode" : "ABC143"}
-Get Question:   {"id" : 4, "auth_token" : "..."}
+Submit answers: {"id" : 3, "auth_token" : "...", "question_index" : 0, "answer" : 4, "lobby_code" : "ABC143"}
+Get Question:   {"id" : 4, "auth_token" : "...", "lobby_code" : "HFG749"}
 """
 
 from crypt import methods
@@ -111,8 +111,6 @@ def leave_lobby(code):
     return redirect("/")
 
 
-
-
 @app.route("/lobby/<code>/start", methods=["GET"])
 def start_game(code):
     auth_token = request.cookies.get('auth_token', None)
@@ -129,12 +127,20 @@ def start_game(code):
     #if (len(lobby.get_players()) < 2): 
     #    return redirect(f"/lobby/{code}") # Not enough players
     gs.start_game(gs.get_id(code))
+
+    game: Optional[Game] = gs.get_game_by_code(code)
+    if not game: return
+
     msg = {"id":1}
     socketio.emit("message", json.dumps(msg), namespace="")
+    game.on_next_question = send_next_question
 
     print("Started Game")
     return redirect(f"/game/{code}")
 
+def send_next_question(question: Question, index: int) -> None: 
+    msg = {"id" : 2, "question_index": index, "question": question.question, "answers": question.answers}
+    socketio.emit("message", json.dumps(msg), namespace="")
 
 @socketio.on('message')
 def handle_message(data_raw):
@@ -150,6 +156,9 @@ def handle_message(data_raw):
         player: Optional[Player] = gs.get_player_by_username(decode_token(data["auth_token"])["username"])
         if not player: return
         game.answer(player, data["answer"])
+
+    if (data["id"] == 4):
+        send_next_question(game.questions[game.current_question], game.current_question)
         
     
 
