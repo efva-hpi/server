@@ -51,7 +51,9 @@ def lobby(code):
                 form.get("difficulty"),
                 form.get("gamemode")
             )
-            gs.create_lobby(code, game_settings)
+            if not gs.create_lobby(code, game_settings):
+                flash("Lobby existiert bereits!", "error")
+                return redirect("/")
 
         elif form.get("lobbyFormType") == "guest": # Guest joining lobby
             current_lobby: Optional[Lobby] = gs.get_lobby_by_code(code)
