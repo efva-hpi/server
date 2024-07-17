@@ -56,13 +56,13 @@ class Answer:
 
 
 class Game:
-    def __init__(self, players: list[Player], id: int, game_settings: GameSettings, on_next_question = None, question_amount: int = 10) -> None:
+    def __init__(self, players: list[Player], id: int, game_settings: GameSettings, on_next_question = None) -> None:
         self.id: int = id
         self.player_list: list[Player] = players
 
         self.game_settings: GameSettings = game_settings
-        self.question_amount = question_amount
-        self.questions: list[Question] = self.get_questions(question_amount)
+        self.question_amount = game_settings.n_questions
+        self.questions: list[Question] = self.get_questions(game_settings.n_questions)
         self.question_timestamps: list[Optional[int]] = [None for i in range(len(self.questions))]
         self.current_question = 0
         self.on_next_question = on_next_question
