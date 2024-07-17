@@ -3,6 +3,8 @@ services:
     volumes:
       - efva_db_vol:/var/lib/postgresql/data
       - ./efva.sql:/docker-entrypoint-initdb.d/efva.sql
+    environment:
+      POSTGRES_PASSWORD: 'efva-pw'
 
   app:
     build:

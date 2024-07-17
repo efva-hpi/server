@@ -1,9 +1,16 @@
 import psycopg2
+from get_docker_secret import get_docker_secret
+import os
+
+db_pw = get_docker_secret("PG_PW", default = "efva-pw")
+if db_pw != "efva-pw":
+    with open(db_pw, "r") as f:
+        db_pw = f.read().strip()
 
 db_params = {
     'dbname': 'efva-db',
     'user': 'efva',
-    'password': 'efva-pw',
+    'password': db_pw,
     'host': 'db'
 }
 

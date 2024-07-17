@@ -3,15 +3,28 @@ services:
     volumes:
       - efva_db_vol:/var/lib/postgresql/data
       - ./efva.sql:/docker-entrypoint-initdb.d/efva.sql
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
 
   app:
     build:
       target: prod
     image:
       efva-app-prod
+    environment:
+      PG_PW: /run/secrets/db_password
     ports:
       - 127.0.0.1:3000:3000
+    secrets:
+      - db_password
     entrypoint: ["uwsgi", "uwsgi.ini"]
+
+secrets:
+  db_password:
+    name: db_password
+    file: db_key.txt    
 
 volumes:
   efva_db_vol:

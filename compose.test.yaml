@@ -2,6 +2,8 @@ services:
   db:
     volumes:
       - ./test.sql:/docker-entrypoint-initdb.d/test.sql
+    environment:
+      POSTGRES_PASSWORD: 'efva-pw'
 
   app:
     build:
