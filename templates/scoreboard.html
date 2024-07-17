@@ -3,18 +3,19 @@
 <head>
     <title>EFVA</title>
     <link rel="stylesheet" href="../static/style.css">
-        <link rel="icon" type="image/svg+xml" href="../static/favicon.svg">
-        <link rel="icon" type="image/png" href="../static/favicon.png">
+    <link rel="icon" type="image/svg+xml" href="../static/favicon.svg">
+    <link rel="icon" type="image/png" href="../static/favicon.png">
 </head>
 <body>
     <h1>
         Spiel {{lobbyCode}}
     </h1>
     <ol id="playerListUL">
-        {%- for player in players %}
-            <li>{{player[0]}}: {{ player[1]}}</li>
+        {%- for s_c in sorted_players_scores %}
+            <li>{{s_c[0]}}: {{ s_c[1]}}</li>
         {% endfor -%}
     </ol>
-    
+    {{ players }}
+    {{ scores }}
 </body>
 </html>

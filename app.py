@@ -184,16 +184,13 @@ def handle_message(data_raw):
         write_send_log(player)
         if player == None: return
         game.answer(player, data["answer"])
-        if game.next_question() and game.current_question == (len(game.questions)-1):
+        if not game.next_question() and game.all_answered() and game.current_question == (len(game.questions)-1):
             msg = {"id":5, "lobby_code":data["lobby_code"]}
             socketio.emit("message", json.dumps(msg), namespace="")
 
     if (data["id"] == 4):
         send_next_question(game.questions[game.current_question], game.current_question)
 
-# @app.route("/scoreboard/<code>")
-# def scoreboard(code):
-#     return render_template("scoreboard.html", lobbyCode=code, players=gs.get_lobby_by_code(code).get_player_list())
 
 @app.route("/game/<code>", methods=["GET"])
 def game_page(code):
@@ -218,7 +215,7 @@ def load_scoreboard(code):
     players_scores_list = zip(players, scores)
     sorted_players_scores = sorted(players_scores_list, key=lambda x: x[1], reverse=True)
 
-    return render_template("scoreboard.html", lobbyCode=code, playersScores=sorted_players_scores)
+    return render_template("scoreboard.html", lobbyCode=code, players=players, scores=scores, playersScores=sorted_players_scores)
 
 @app.route("/login", methods=["POST"])
 def login():
