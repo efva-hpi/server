@@ -24,7 +24,7 @@
                 // Get Question
                 questionIndexSpan.innerText = "0";
                 const currentLobbyCode = window.location.href.slice(-6);
-                socket.emit('message', {data: {"id": 4, "auth_token": Cookies.get('auth_token'), "lobby_code" : currentLobbyCode}});
+                socket.emit('message', `{"id": 4, "auth_token": "${Cookies.get('auth_token')}", "lobby_code" : "${currentLobbyCode}"}`);
             });
             socket.on('message', function(response) {
                 console.log('Received message:', response);
@@ -39,8 +39,8 @@
                         break;
                     case 2:
                         // New Question
-                        if(jsonResponse['question_index'] < questionIndexSpan.innerText) break;
                         console.log("New question yay");
+                        if(jsonResponse['question_index'] < questionIndexSpan.innerText) break;
                         const currentLobbyCode = window.location.href.slice(-6);
                         questionIndexSpan.innerText = jsonResponse['question_index'];
                         currentQuestionSpan.innerHTML = jsonResponse['question'];
@@ -51,7 +51,7 @@
                             newAnswerButton.innerText = answerOptions[i];
                             newAnswerButton.id = `answerOption${i}Btn`;
                             newAnswerButton.addEventListener('click', () => {
-                                socket.emit('message', {data: {"id" : 3, "auth_token" : Cookies.get('auth_token'), "question_index" : jsonResponse['question_index'], "answer" : i, "lobby_code" : currentLobbyCode}});
+                                socket.emit('message', `{"id" : 3, "auth_token" : "${Cookies.get('auth_token')}", "question_index" : ${jsonResponse['question_index']}, "answer" : ${i}, "lobby_code" : "${currentLobbyCode}"}`);
                             });
                             answerButtonsDiv.appendChild(newAnswerButton);
                         }

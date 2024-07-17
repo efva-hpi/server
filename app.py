@@ -155,11 +155,11 @@ def handle_message(data_raw):
     data = json.loads(str(data_raw))
 
 
-    game: Optional[Game] = gs.get_game_by_code(data["lobbyCode"])
-    if data["question"] != game.current_question: return 
+    game: Optional[Game] = gs.get_game_by_code(data["lobby_code"])
     if not game: return
 
     if (data["id"] == 3):
+        if data["question_index"] != game.current_question: return
         player: Optional[Player] = gs.get_player_by_username(decode_token(data["auth_token"])["username"])
         if not player: return
         game.answer(player, data["answer"])
