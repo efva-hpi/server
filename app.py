@@ -5,11 +5,11 @@ from spiellogik import *
 from login import login as a_login, register as a_register, psycopg2Error
 import jwt
 import datetime
-from flask_sockets import Sockets
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
-sockets = Sockets(app)
+socketio = SocketIO(app)
 
 gs: GameState = GameState()
 
@@ -116,19 +116,9 @@ def start_game(code):
     return redirect(f"/game/{code}")
 
 
-@sockets.route('/game/<code>')
-def game_socket(ws, code):
-    lobby: Optional[Lobby] = gs.get_lobby_by_code(code)
-    if (lobby == None): return
-
-    players: list[str] = lobby.get_player_list()
-
-    while not ws.closed:
-        if (lobby.get_player_list() != players):
-            players = lobby.get_player_list()
-            ws.send(players)
-        message = ws.receive()
-        print(message)
+@socketio.on('message')
+def on_message(message):
+    print(message)
 
 @app.route("/game/<code>", methods=["GET"])
 def game_page(code):
