@@ -20,9 +20,12 @@ def write_answer_log(data):
     #file.close()
 
 def write_timeout_log(data):
-    file = open("log_timeout.txt", "a")
-    file.write(str(data) + "\n")
-    file.close()
+    try:
+        file = open("log_timeout.txt", "a+")
+        file.write(str(data) + "\n")
+        file.close()
+    except PermissionError:
+        pass
 
 
 class Player:

@@ -8,6 +8,7 @@ End Game:       {"id" : 5, "lobby_code" : "ABC123"}
 """
 
 from crypt import methods
+from nis import cat
 from shlex import join
 from blinker import Namespace
 from flask import Flask, render_template, request, redirect, flash, session, Response, make_response
@@ -237,9 +238,12 @@ def decode_token(token: str):
 
 def write_socket_log(data):
     print(data)
-    file = open("log_socket.txt", "a")
-    file.write(str(data) + "\n")
-    file.close()
+    try:
+        file = open("log_socket.txt", "a+")
+        file.write(str(data) + "\n")
+        file.close()
+    except PermissionError:
+        pass
 
 
 def id_0(lobby: Lobby) -> None:
