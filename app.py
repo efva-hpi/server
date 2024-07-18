@@ -19,7 +19,7 @@ import datetime
 import json
 from typing import List, Tuple
 
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit, send
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -248,7 +248,7 @@ def id_0(lobby: Lobby) -> None:
     """
     msg = {"id": 0, "players": lobby.get_player_list(), "lobby_code":lobby.code}
     write_socket_log(msg)
-    socketio.emit("message", json.dumps(msg), namespace=f"/lobby/{lobby.code}")
+    socketio.emit("message", json.dumps(msg))
 
 
 def id_1(lobby: Lobby) -> None:
@@ -257,7 +257,7 @@ def id_1(lobby: Lobby) -> None:
     """
     msg = {"id":1, "lobby_code":lobby.code}
     write_socket_log(msg)
-    socketio.emit("message", json.dumps(msg), namespace=f"/lobby/{lobby.code}")
+    socketio.emit("message", json.dumps(msg))
 
 
 
@@ -267,7 +267,7 @@ def id_2(lobby: Lobby, question_index: int, question: Question) -> None:
     """
     msg = {"id" : 2, "question_index": question_index, "question": question.question, "answers": question.answers, "lobby_code": lobby.code}
     write_socket_log(msg)
-    socketio.emit("message", json.dumps(msg), namespace=f"/game/{lobby.code}")
+    socketio.emit("message", json.dumps(msg))
 
 def id_5(lobby: Lobby) -> None:
     """
@@ -281,7 +281,6 @@ def id_5(lobby: Lobby) -> None:
 def handle_message(data_raw):
     data = json.loads(str(data_raw)) # Convert to json
 
-
     game: Optional[Game] = gs.get_game_by_code(data["lobby_code"])
     lobby: Optional[Lobby] = gs.get_lobby_by_code(data["lobby_code"])
     
@@ -294,10 +293,22 @@ def handle_message(data_raw):
         player: Optional[Player] = gs.get_player_by_username(str(decode_token(data["auth_token"])["username"]))
         if player == None: return
         game.answer(player, data["answer"])
+        write_socket_log(f"Answer from {player.username} with answer {data['answer']}")
         
-        if not game.next_question() and game.all_answered() and game.current_question == (len(game.questions)-1):
+        next_q: bool = game.next_question() 
+        if (next_q):
+            write_socket_log("Next question")
+
+
+        if not next_q and game.all_answered() and game.current_question == (len(game.questions)-1):
             id_5(lobby)
 
     if (data["id"] == 4):
         write_socket_log(data)
-        id_2(lobby, game.current_question, game.questions[game.current_question])
+        question_index = game.current_question
+        question = game.questions[game.current_question]
+
+        msg = {"id" : 2, "question_index": question_index, "question": question.question, "answers": question.answers, "lobby_code": lobby.code}
+        write_socket_log(msg)
+        emit("message", json.dumps(msg), namespace="")
+        #id_2(lobby, game.current_question, game.questions[game.current_question])
