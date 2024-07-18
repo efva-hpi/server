@@ -1,0 +1,149 @@
+/* lobby.css */
+
+/* Grundlegende Stileinstellungen */
+html, body {
+    height: 100%;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f4f8;
+    color: #2e3d49;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+}
+
+/* Container */
+.container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 30px 50px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    width: 90%;
+    text-align: center;
+    margin: 20px 0;
+}
+
+/* Überschrift */
+h1 {
+    color: #37474f;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    word-wrap: break-word; /* Ensure long words break and don't overflow */
+}
+
+/* Unterüberschrift */
+h2 {
+    color: #546e7a;
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+/* Listen */
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+    text-align: left;
+}
+
+ul li {
+    background: #cfd8dc;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 1.2rem;
+}
+
+/* QR Code */
+#qrcode {
+    border: 2px solid #37474f;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    width: 150px;
+    height: 150px;
+}
+
+/* Buttons */
+button {
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    font-size: 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin: 5px;
+    width: 65%;
+}
+
+button:hover {
+    background-color: #29434e;
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+#startbtn {
+    background-color: #4caf50;
+}
+
+/* Dialog-Formular */
+dialog {
+    border: 2px solid #37474f;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 100%;
+    background-color: white;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+label {
+    margin: 10px 0 5px;
+    color: #2e3d49;
+}
+
+/* Media Queries */
+@media screen and (max-width: 1100px) {
+    .container {
+        padding: 20px 30px;
+    }
+
+    h1 {
+        font-size: 8vw;
+        margin-bottom: 5vw; /* Adjust margin for better spacing */
+    }
+
+    h2 {
+        font-size: 7vw; /* Adjusted size for better layout */
+    }
+
+    ul li {
+        font-size: 6vw; /* Adjusted size for better layout */
+    }
+
+    #qrcode {
+        width: 30vw; /* Adjusted size for better layout */
+        height: 30vw; /* Adjusted size for better layout */
+    }
+
+    button {
+        padding: 10px 20px;
+        font-size: 4vw;
+    }
+
+    dialog {
+        padding: 15px;
+    }
+}

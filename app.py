@@ -1,7 +1,7 @@
 """
-Player List:    {"id" : 0, "players" : ["Tobi", "Udolf", "Rudolf"]}
-Start game:     {"id" : 1}
-New question:   {"id" : 2, "question_index" : 0, "question" : "Was los?", "answers" : ["Hö", "Hä", "Hey", "Ha"]}
+Player List:    {"id" : 0, "players" : ["Tobi", "Udolf", "Rudolf"], "lobby_code":"JGL486"}
+Start game:     {"id" : 1, "lobby_code": "ABF683"}
+New question:   {"id" : 2, "question_index" : 0, "question" : "Was los?", "answers" : ["Hö", "Hä", "Hey", "Ha"], "lobby_code" : "HGJ754"}
 Submit answers: {"id" : 3, "auth_token" : "...", "question_index" : 0, "answer" : 4, "lobby_code" : "ABC143"}
 Get Question:   {"id" : 4, "auth_token" : "...", "lobby_code" : "HFG749"}
 End Game:       {"id" : 5, "lobby_code" : "ABC123"}
@@ -18,6 +18,7 @@ import jwt
 import datetime
 from flask_socketio import SocketIO
 import json
+from typing import List, Tuple
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -97,7 +98,7 @@ def lobby(code):
 
 
 def send_players_in_lobby(lobby: Lobby):
-    msg = {"id": 0, "players": lobby.get_player_list()}
+    msg = {"id": 0, "players": lobby.get_player_list(), "lobby_code":lobby.code}
     socketio.emit("message", json.dumps(msg), namespace="")
 
 @app.route("/lobby/<code>/leave", methods=["GET", "POST"])
@@ -137,14 +138,14 @@ def start_game(code):
     game: Optional[Game] = gs.get_game_by_code(code)
 
 
-    msg = {"id":1}
+    msg = {"id":1, "lobby_code":lobby.code}
     socketio.emit("message", json.dumps(msg), namespace="")
 
     print("Started Game")
     return redirect(f"/game/{code}")
 
-def send_next_question(question: Question, index: int) -> None:
-    msg = {"id" : 2, "question_index": index, "question": question.question, "answers": question.answers}
+def send_next_question(question: Question, index: int, code: str) -> None:
+    msg = {"id" : 2, "question_index": index, "question": question.question, "answers": question.answers, "lobby_code": code}
     write_send_log(msg)
     socketio.emit("message", json.dumps(msg), namespace="")
 
@@ -184,16 +185,13 @@ def handle_message(data_raw):
         write_send_log(player)
         if player == None: return
         game.answer(player, data["answer"])
-        if game.next_question() and game.current_question == (len(game.questions)):
+        if not game.next_question() and game.all_answered() and game.current_question == (len(game.questions)-1):
             msg = {"id":5, "lobby_code":data["lobby_code"]}
             socketio.emit("message", json.dumps(msg), namespace="")
 
     if (data["id"] == 4):
-        send_next_question(game.questions[game.current_question], game.current_question)
+        send_next_question(game.questions[game.current_question], game.current_question, data["lobby_code"])
 
-@app.route("/scoreboard/<code>")
-def scoreboard(code):
-    return render_template("scoreboard.html", lobbyCode=code, players=gs.get_lobby_by_code(code).get_player_list())
 
 @app.route("/game/<code>", methods=["GET"])
 def game_page(code):
@@ -215,9 +213,9 @@ def load_scoreboard(code):
     finished_game: Game = gs.get_game_by_code(code)
     players: list[Player] = finished_game.player_list
     scores: list[int] = finished_game.calculate_total_points()
-    players_scores_list = zip(players, scores)
-    sorted_players_scores = sorted(players_scores_list, key=lambda x: x[1], reverse=True)
-
+    players_scores_list: List[Tuple[Player, int]] = list(zip(players, scores))
+    sorted_players_scores: List[Tuple[Player, int]] = sorted(players_scores_list, key=lambda x: x[1], reverse=True)
+    write_log([players, scores, players_scores_list, sorted_players_scores])
     return render_template("scoreboard.html", lobbyCode=code, playersScores=sorted_players_scores)
 
 @app.route("/login", methods=["POST"])

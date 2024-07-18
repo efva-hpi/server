@@ -12,6 +12,11 @@ def write_send_log(data):
     file.write(str(data) + "\n")
     file.close()
 
+def write_answer_log(data):
+    file = open("log_answer.txt", "a")
+    file.write(str(data) + "\n")
+    file.close()
+
 
 class Player:
     def __init__(self, username: str) -> None:
@@ -51,18 +56,20 @@ class Answer:
 
 
 class Game:
-    def __init__(self, players: list[Player], id: int, game_settings: GameSettings, on_next_question = None, question_amount: int = 10) -> None:
+    def __init__(self, players: list[Player], id: int, game_settings: GameSettings, on_next_question = None) -> None:
         self.id: int = id
         self.player_list: list[Player] = players
 
         self.game_settings: GameSettings = game_settings
-        self.question_amount = question_amount
-        self.questions: list[Question] = self.get_questions(question_amount)
+        self.question_amount = game_settings.n_questions
+        self.questions: list[Question] = self.get_questions(game_settings.n_questions, game_settings.difficulty, game_settings.category)
         self.question_timestamps: list[Optional[int]] = [None for i in range(len(self.questions))]
         self.current_question = 0
         self.on_next_question = on_next_question
 
         self.answers: list[list[Answer]] = [[] for i in range(len(self.questions))]
+
+        self.question_timestamps[self.current_question] = time_ns()
 
         self.start_timer(0) # Start timer for first question
         
@@ -72,10 +79,12 @@ class Game:
         """
         Calculates the points using the answer and time to answer.
         """
-        if not (question_time and answer_time): raise Exception("Time is none")
+        write_send_log([question_time, answer_time])
+        if (question_time is None or answer_time is None): raise Exception("Time is none")
         if question_time > answer_time: raise Exception("Invalid time")
 
-        time_taken_seconds = (answer_time - question_time) / 10e6  # time is measured in ns
+        time_taken_seconds = (answer_time - question_time) / 1e+9  # time is measured in ns
+        write_send_log(time_taken_seconds)
         max_time = self.game_settings.max_time_question
 
         if time_taken_seconds > max_time: return 0  # answer was too late
@@ -93,7 +102,7 @@ class Game:
         """
         Checks if an answer for a question is correct.
         """
-        return answer in question.answers
+        return answer.answer == question.correct_answer
 
     def _calculate_points_question_player(self, question_id: int, player: Player) -> int:
         """
@@ -101,15 +110,15 @@ class Game:
         """
         if question_id >= len(self.questions): raise Exception("Invalid question")
         timestamp: Optional[int] = self.question_timestamps[question_id]
-        if not timestamp: raise Exception("Invalid question time")
+        if timestamp is None: raise Exception("Invalid question time")
 
         answer: Optional[Answer] = self.get_answer_player(question_id, player)
-        if not answer: raise Exception("Player has no answer for the question")
-        if (answer.timeout): return 0
+        if answer is None: return 0 #raise Exception("Player has no answer for the question")
+        if (answer.timeout): return 0 
 
         question: Question = self.questions[question_id]
+        #return int(self._check_question(question, answer))
         return self._calculate_points_time(timestamp, answer.time_stamp, self._check_question(question, answer))
-
     # TODO: callback next question
 
 
@@ -139,7 +148,7 @@ class Game:
         Returns the total points for all players and all currently answered questions
         """
         points: list[int] = [0 for p in self.player_list]
-        for i in range(self.current_question + 1):
+        for i in range(len(self.questions)):
             points = self._add_lists(points, self.calculate_points_question(i))
 
         return points
@@ -150,7 +159,7 @@ class Game:
         Can be none.
         """
         for a in self.answers[question_id]:
-            if a.player == player:
+            if a.player.username == player.username:
                 return a
         return None
 
@@ -187,9 +196,11 @@ class Game:
         Returns true if successful.
         """
         answers = self.answers[self.current_question]
+        write_answer_log(answers)
+        write_answer_log(self.player_list)
         for player in self.player_list:
-            for a in answers:
-                if player.username != a.player.username: return False
+            write_answer_log(f"Answer name {[a.player.username for a in answers]}, Player list {[p.username for p in self.player_list]}")
+            if not (player.username in [a.player.username for a in answers]): return False
         return True
 
     def answer(self, player: Player, answer: int, timeout: bool = False) -> bool:
@@ -198,11 +209,15 @@ class Game:
         Returns true if successful.
         """
         print(f"Answer {player}, n: {answer}, timeout: {timeout}")
-        if player in self.player_list:
-            a: Answer = Answer(player, answer, time_ns(), timeout=timeout)
-            if not (a in self.answers[self.current_question]):
-                self.answers[self.current_question].append(a)
-                print(f"Submitted answer {a}")
+        #write_answer_log(f"Answer {player}, n: {answer}, timeout: {timeout}, player_list: {self.player_list}")
+        if player.username in [p.username for p in self.player_list]:
+            ans: Answer = Answer(player, answer, time_ns(), timeout=timeout)
+            #write_answer_log(a.player.username)
+            #write_answer_log([a.player.username for a in self.answers[self.current_question]]   )
+            if not (player.username in [a.player.username for a in self.answers[self.current_question]]):
+                self.answers[self.current_question].append(ans)
+                #write_answer_log(f"Submitted answer {a}")
+                print(f"Submitted answer {ans}")
                 return True
         return False
 
@@ -213,9 +228,12 @@ class Game:
         """
         if self.all_answered():
             if self.current_question < (len(self.questions) - 1):
+                
                 self.current_question += 1
                 self.start_timer(self.current_question)
+                self.question_timestamps[self.current_question] = time_ns()
                 self.on_next_question(self.questions[self.current_question], self.current_question)
+                
                 return True
         return False
 
