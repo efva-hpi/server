@@ -66,7 +66,7 @@ class Answer:
 
 
 class Game:
-    def __init__(self, players: list[Player], id: int, game_settings: GameSettings, lobby, on_next_question = None) -> None:
+    def __init__(self, players: list[Player], id: int, game_settings: GameSettings, lobby, on_next_question = None, switch_to_scoreboard = None) -> None:
         self.id: int = id
         self.player_list: list[Player] = players
 
@@ -76,6 +76,7 @@ class Game:
         self.question_timestamps: list[Optional[int]] = [None for i in range(len(self.questions))]
         self.current_question = 0
         self.on_next_question = on_next_question
+        self.switch_to_scoreboard = switch_to_scoreboard
         self.lobby: Lobby = lobby
 
         self.answers: list[list[Answer]] = [[] for i in range(len(self.questions))]
@@ -243,6 +244,7 @@ class Game:
         Switches to the next question, if all players submitted an answer.
         Returns true if successful.
         """
+
         if self.all_answered():
             if self.current_question < (len(self.questions) - 1):
                 
@@ -252,6 +254,8 @@ class Game:
                 self.on_next_question(self.lobby, self.current_question, self.questions[self.current_question])
                 
                 return True
+            elif self.current_question == (len(self.questions)-1):
+                self.switch_to_scoreboard(self.lobby)
         return False
 
     def get_current_question(self) -> Question:
@@ -314,11 +318,11 @@ class Lobby:
     #            number //= len(alph)
     #        return code
 
-    def start_game(self, on_next_question) -> Game:
+    def start_game(self, on_next_question, switch_to_scoreboard) -> Game:
         """
         Starts a game and returns the game object
         """
-        game: Game = Game(self._player_list, self.id, copy.deepcopy(self.game_settings), self, on_next_question=on_next_question)
+        game: Game = Game(self._player_list, self.id, copy.deepcopy(self.game_settings), self, on_next_question=on_next_question, switch_to_scoreboard=switch_to_scoreboard)
         return game
 
 
@@ -397,14 +401,14 @@ class GameState:
                 return l
         return None
 
-    def start_game(self, id: int, on_next_question) -> bool:
+    def start_game(self, id: int, on_next_question, switch_to_scoreboard) -> bool:
         """
         Starts a game for a given lobby id.
         Returns true if successful.
         """
         lobby = self.get_lobby_by_id(id)
         if lobby:
-            self.games.append(lobby.start_game(on_next_question))
+            self.games.append(lobby.start_game(on_next_question, switch_to_scoreboard))
             return True
         else:
             return False

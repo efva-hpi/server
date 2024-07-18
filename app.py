@@ -133,7 +133,7 @@ def start_game(code):
     #if (len(lobby.get_players()) < 2): 
     #    return redirect(f"/lobby/{code}") # Not enough players
 
-    gs.start_game(gs.get_id(code), id_2)
+    gs.start_game(gs.get_id(code), id_2, id_5)
 
     game: Optional[Game] = gs.get_game_by_code(code)
 
@@ -303,9 +303,6 @@ def handle_message(data_raw):
         if (next_q):
             write_socket_log("Next question")
 
-
-        if not next_q and game.all_answered() and game.current_question == (len(game.questions)-1):
-            id_5(lobby)
 
     if (data["id"] == 4):
         write_socket_log(data)
