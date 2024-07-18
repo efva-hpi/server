@@ -291,7 +291,7 @@ def handle_message(data_raw):
         print("id 3")
         if data["question_index"] != game.current_question: return
         player: Optional[Player] = gs.get_player_by_username(str(decode_token(data["auth_token"])["username"]))
-        if player == None: return
+        if player is None: return
         game.answer(player, data["answer"])
         write_socket_log(f"Answer from {player.username} with answer {data['answer']}")
         

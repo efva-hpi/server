@@ -20,6 +20,7 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
         <script type="text/javascript" charset="utf-8">
+            console.log("game page loaded");
             // HTML Elements
             const questionIndexSpan = document.getElementById('questionIndexSpan');
             const currentQuestionSpan = document.getElementById('currentQuestionSpan');
@@ -32,6 +33,7 @@
             const socket = io();
             socket.on('connect', function() {
                 // Get Question
+                console.log("Getting question on connect");
                 questionIndexSpan.innerText = "0";
                 const currentLobbyCode = window.location.href.slice(-6);
                 socket.emit('message', `{"id": 4, "auth_token": "${Cookies.get('auth_token')}", "lobby_code": "${currentLobbyCode}"}`);
@@ -40,6 +42,11 @@
                 console.log('Received message:', response);
                 const jsonResponse = JSON.parse(response);
                 console.log(jsonResponse);
+                console.log(`json code: ${jsonResponse['lobby_code']}, current code: ${currentLobbyCode}, equal: ${jsonResponse['lobby_code'] != currentLobbyCode}`);
+                if(jsonResponse['lobby_code'] != currentLobbyCode) {
+                    console.log("not equal");
+                    return;
+                }
                 switch (jsonResponse['id']) {
                     case 0:
                         // Spielerliste
@@ -52,7 +59,7 @@
                         console.log("New question yay");
                         if(jsonResponse['question_index'] < questionIndexSpan.innerText) break;
                         answerButtonsDiv.innerHTML = "";
-                        questionIndexSpan.innerText = jsonResponse['question_index'];
+                        questionIndexSpan.innerText = (parseInt(jsonResponse['question_index'], 10) + 1).toString(10);
                         currentQuestionSpan.innerHTML = jsonResponse['question'];
                         let answerOptions = jsonResponse['answers']
                         for (let i=0; i<answerOptions.length; i++) {
@@ -75,7 +82,6 @@
                         break;
                     case 5:
                         console.log("It's joever");
-                        if(jsonResponse['lobby_code'] != currentLobbyCode) break;
                         console.log("actually doin it");
                         const currentUrl= window.location.href.slice(0, -11);
                         const scoreboardUrl = `${currentUrl}scoreboard/${currentLobbyCode}`;
