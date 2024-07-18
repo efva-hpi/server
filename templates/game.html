@@ -65,7 +65,7 @@
                         for (let i=0; i<answerOptions.length; i++) {
                             console.log("Answer ", i, ": ", answerOptions[i])
                             let newAnswerButton = document.createElement('button');
-                            newAnswerButton.innerText = answerOptions[i];
+                            newAnswerButton.innerHTML = answerOptions[i];
                             newAnswerButton.id = `answerOption${i}Btn`;
                             newAnswerButton.addEventListener('click', () => {
                                 socket.emit('message', `{"id": 3, "auth_token": "${Cookies.get('auth_token')}", "question_index": ${jsonResponse['question_index']}, "answer": ${i}, "lobby_code": "${currentLobbyCode}"}`);
