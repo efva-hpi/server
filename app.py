@@ -248,7 +248,7 @@ def id_0(lobby: Lobby) -> None:
     """
     msg = {"id": 0, "players": lobby.get_player_list(), "lobby_code":lobby.code}
     write_socket_log(msg)
-    socketio.emit("message", json.dumps(msg))
+    socketio.emit("message", json.dumps(msg), namespace="")
 
 
 def id_1(lobby: Lobby) -> None:
@@ -257,7 +257,7 @@ def id_1(lobby: Lobby) -> None:
     """
     msg = {"id":1, "lobby_code":lobby.code}
     write_socket_log(msg)
-    socketio.emit("message", json.dumps(msg))
+    socketio.emit("message", json.dumps(msg), namespace="")
 
 
 
@@ -267,7 +267,7 @@ def id_2(lobby: Lobby, question_index: int, question: Question) -> None:
     """
     msg = {"id" : 2, "question_index": question_index, "question": question.question, "answers": question.answers, "lobby_code": lobby.code}
     write_socket_log(msg)
-    socketio.emit("message", json.dumps(msg))
+    socketio.emit("message", json.dumps(msg), namespace="")
 
 def id_5(lobby: Lobby) -> None:
     """
@@ -275,7 +275,7 @@ def id_5(lobby: Lobby) -> None:
     """
     msg = {"id":5, "lobby_code":lobby.code}
     write_socket_log(msg)
-    socketio.emit("message", json.dumps(msg))
+    socketio.emit("message", json.dumps(msg), namespace="")
 
 @socketio.on('message')
 def handle_message(data_raw):
@@ -308,7 +308,7 @@ def handle_message(data_raw):
         question_index = game.current_question
         question = game.questions[game.current_question]
 
-        msg = {"id" : 2, "question_index": question_index, "question": question.question, "answers": question.answers, "lobby_code": lobby.code}
-        write_socket_log(msg)
-        emit("message", json.dumps(msg), namespace="")
-        #id_2(lobby, game.current_question, game.questions[game.current_question])
+        #msg = {"id" : 2, "question_index": question_index, "question": question.question, "answers": question.answers, "lobby_code": lobby.code}
+        #write_socket_log(msg)
+        #emit("message", json.dumps(msg), namespace="")
+        id_2(lobby, game.current_question, game.questions[game.current_question])

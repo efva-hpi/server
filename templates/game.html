@@ -30,7 +30,7 @@
             const currentLobbyCode = window.location.href.slice(-6);
 
             // Websocket
-            const socket = io();
+            const socket = io({transports: ["websocket"]});
             socket.on('connect', function() {
                 // Get Question
                 console.log("Getting question on connect");

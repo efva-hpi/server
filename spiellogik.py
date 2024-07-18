@@ -58,7 +58,7 @@ class Answer:
 
 
 class Game:
-    def __init__(self, players: list[Player], id: int, game_settings: GameSettings, on_next_question = None) -> None:
+    def __init__(self, players: list[Player], id: int, game_settings: GameSettings, lobby, on_next_question = None) -> None:
         self.id: int = id
         self.player_list: list[Player] = players
 
@@ -68,6 +68,7 @@ class Game:
         self.question_timestamps: list[Optional[int]] = [None for i in range(len(self.questions))]
         self.current_question = 0
         self.on_next_question = on_next_question
+        self.lobby: Lobby = lobby
 
         self.answers: list[list[Answer]] = [[] for i in range(len(self.questions))]
 
@@ -234,7 +235,7 @@ class Game:
                 self.current_question += 1
                 self.start_timer(self.current_question)
                 self.question_timestamps[self.current_question] = time_ns()
-                self.on_next_question(self.questions[self.current_question], self.current_question)
+                self.on_next_question(self.lobby, self.current_question, self.questions[self.current_question])
                 
                 return True
         return False
@@ -303,7 +304,7 @@ class Lobby:
         """
         Starts a game and returns the game object
         """
-        game: Game = Game(self._player_list, self.id, copy.deepcopy(self.game_settings), on_next_question=on_next_question)
+        game: Game = Game(self._player_list, self.id, copy.deepcopy(self.game_settings), self, on_next_question=on_next_question)
         return game
 
 
