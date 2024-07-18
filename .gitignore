@@ -6,3 +6,4 @@ log.txt
 log_send.txt
 log_answer.txt
 log_socket.txt
+log_timeout.txt

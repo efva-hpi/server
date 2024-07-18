@@ -19,6 +19,11 @@ def write_answer_log(data):
     #file.write(str(data) + "\n")
     #file.close()
 
+def write_timeout_log(data):
+    file = open("log_timeout.txt", "a")
+    file.write(str(data) + "\n")
+    file.close()
+
 
 class Player:
     def __init__(self, username: str) -> None:
@@ -126,14 +131,20 @@ class Game:
 
 
     def stop_question(self, question: int):
+        write_timeout_log(f"Stop timer for question {question}")
         if (self.current_question == question):
+            write_timeout_log(f"Timeout for {question}")
             for p in self.player_list:
                 if (self.get_answer_player(question, p) == None):
+                    write_timeout_log(f"Player {p.username} not answered")
                     self.answer(p, -1, True)
+            write_timeout_log(f"Forcing next question")
             self.next_question()
     
     def start_timer(self, question: int):
-        t = threading.Timer(30.0, self.stop_question, args=(question))
+        write_timeout_log(f"Start timer for question {question}")
+        t = threading.Timer(30.0, self.stop_question, args=[question])
+        t.start()
 
     def calculate_points_question(self, question: int) -> list[int]:
         """
