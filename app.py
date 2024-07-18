@@ -145,15 +145,17 @@ def start_game(code):
 
 
 def write_log(data):
-    file = open("log.txt", "a")
-    file.write(str(data) + "\n")
-    file.close()
+    pass
+    #file = open("log.txt", "a")
+    #file.write(str(data) + "\n")
+    #file.close()
 
 
 def write_send_log(data):
-    file = open("log_send.txt", "a")
-    file.write(str(data) + "\n")
-    file.close()
+    pass
+    #file = open("log_send.txt", "a")
+    #file.write(str(data) + "\n")
+    #file.close()
 
 
 @app.route("/game/<code>", methods=["GET"])
@@ -234,6 +236,7 @@ def decode_token(token: str):
 ##################### Websocket
 
 def write_socket_log(data):
+    print(data)
     file = open("log_socket.txt", "a")
     file.write(str(data) + "\n")
     file.close()
@@ -272,7 +275,7 @@ def id_5(lobby: Lobby) -> None:
     """
     msg = {"id":5, "lobby_code":lobby.code}
     write_socket_log(msg)
-    socketio.emit("message", json.dumps(msg), namespace="/game/{lobby.code}")
+    socketio.emit("message", json.dumps(msg))
 
 @socketio.on('message')
 def handle_message(data_raw):

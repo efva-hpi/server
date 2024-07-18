@@ -8,14 +8,16 @@ import json
 import threading
 
 def write_send_log(data):
-    file = open("log_send.txt", "a")
-    file.write(str(data) + "\n")
-    file.close()
+    pass
+    #file = open("log_send.txt", "a")
+    #file.write(str(data) + "\n")
+    #file.close()
 
 def write_answer_log(data):
-    file = open("log_answer.txt", "a")
-    file.write(str(data) + "\n")
-    file.close()
+    pass
+    #file = open("log_answer.txt", "a")
+    #file.write(str(data) + "\n")
+    #file.close()
 
 
 class Player:
