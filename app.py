@@ -16,12 +16,14 @@ from spiellogik import *
 from login import login as a_login, register as a_register, psycopg2Error
 import jwt
 import datetime
-from flask_socketio import SocketIO
 import json
 from typing import List, Tuple
 
+from flask_socketio import SocketIO
+
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+
 socketio = SocketIO(app)
 
 gs: GameState = GameState()
@@ -32,8 +34,6 @@ def main_page():
     if auth_token:
         session.pop('auth_token')
     return render_template("index.html", auth_token=auth_token)
-
-
 
 
 @app.route("/lobby/<code>", methods=["GET", "POST"])
@@ -90,16 +90,14 @@ def lobby(code):
         joining_player: Player = Player(username)
         current_lobby.add_player(joining_player)
         gs.create_player(joining_player.username)
-        send_players_in_lobby(current_lobby)
+        id_0(current_lobby)
+
         players: list[str] = current_lobby.get_player_list()
         resp = make_response(render_template("lobby.html", lobbyInfo=current_lobby.game_settings, lobbyCode=current_lobby.code, players=players))
         resp.set_cookie('auth_token', auth_cookie)
         return resp
 
 
-def send_players_in_lobby(lobby: Lobby):
-    msg = {"id": 0, "players": lobby.get_player_list(), "lobby_code":lobby.code}
-    socketio.emit("message", json.dumps(msg), namespace="")
 
 @app.route("/lobby/<code>/leave", methods=["GET", "POST"])
 def leave_lobby(code):
@@ -112,7 +110,7 @@ def leave_lobby(code):
     players: list[Player] = current_lobby.get_players()
     leaving_player: Player = next((player for player in players if player.username == leaving_player_username), None)
     current_lobby.remove_player(leaving_player)
-    send_players_in_lobby(current_lobby)
+    id_0(current_lobby)
 
     return redirect("/")
 
@@ -130,24 +128,20 @@ def start_game(code):
     if lobby is None:
         flash("Lobby nicht gefunden", "error")
         return redirect("/")  # Check if lobby exists
+    
     #if (len(lobby.get_players()) < 2): 
     #    return redirect(f"/lobby/{code}") # Not enough players
 
-    gs.start_game(gs.get_id(code), send_next_question)
+    gs.start_game(gs.get_id(code), id_2)
 
     game: Optional[Game] = gs.get_game_by_code(code)
 
 
-    msg = {"id":1, "lobby_code":lobby.code}
-    socketio.emit("message", json.dumps(msg), namespace="")
+    id_1(lobby)
 
     print("Started Game")
     return redirect(f"/game/{code}")
 
-def send_next_question(question: Question, index: int, code: str) -> None:
-    msg = {"id" : 2, "question_index": index, "question": question.question, "answers": question.answers, "lobby_code": code}
-    write_send_log(msg)
-    socketio.emit("message", json.dumps(msg), namespace="")
 
 
 def write_log(data):
@@ -160,37 +154,6 @@ def write_send_log(data):
     file = open("log_send.txt", "a")
     file.write(str(data) + "\n")
     file.close()
-
-@socketio.on('message')
-def handle_message(data_raw):
-    write_log(data_raw)
-    print(f"Recieved {data_raw}")
-    data = json.loads(str(data_raw))
-
-
-    game: Optional[Game] = gs.get_game_by_code(data["lobby_code"])
-    
-    if game == None: 
-        write_send_log(f"Lobby code {data['lobby_code']} not found")
-        return
-
-
-    if (data["id"] == 3):
-        write_send_log("id 3")
-        print("id 3")
-        if data["question_index"] != game.current_question: return
-        write_send_log(decode_token(data["auth_token"])["username"])
-        player: Optional[Player] = gs.get_player_by_username(str(decode_token(data["auth_token"])["username"]))
-        write_send_log(gs.get_player_by_username(decode_token(data["auth_token"])["username"]))
-        write_send_log(player)
-        if player == None: return
-        game.answer(player, data["answer"])
-        if not game.next_question() and game.all_answered() and game.current_question == (len(game.questions)-1):
-            msg = {"id":5, "lobby_code":data["lobby_code"]}
-            socketio.emit("message", json.dumps(msg), namespace="")
-
-    if (data["id"] == 4):
-        send_next_question(game.questions[game.current_question], game.current_question, data["lobby_code"])
 
 
 @app.route("/game/<code>", methods=["GET"])
@@ -265,3 +228,73 @@ def generate_token(username: str, lifetime: datetime.timedelta = datetime.timede
 
 def decode_token(token: str):
     return jwt.decode(token.encode('UTF-8'), app.secret_key, algorithms=['HS256'])
+
+
+
+##################### Websocket
+
+def write_socket_log(data):
+    file = open("log_socket.txt", "a")
+    file.write(str(data) + "\n")
+    file.close()
+
+
+def id_0(lobby: Lobby) -> None:
+    """
+    Send player status update
+    """
+    msg = {"id": 0, "players": lobby.get_player_list(), "lobby_code":lobby.code}
+    write_socket_log(msg)
+    socketio.emit("message", json.dumps(msg), namespace=f"/lobby/{lobby.code}")
+
+
+def id_1(lobby: Lobby) -> None:
+    """
+    Start game
+    """
+    msg = {"id":1, "lobby_code":lobby.code}
+    write_socket_log(msg)
+    socketio.emit("message", json.dumps(msg), namespace=f"/lobby/{lobby.code}")
+
+
+
+def id_2(lobby: Lobby, question_index: int, question: Question) -> None:
+    """
+    Sends the current question
+    """
+    msg = {"id" : 2, "question_index": question_index, "question": question.question, "answers": question.answers, "lobby_code": lobby.code}
+    write_socket_log(msg)
+    socketio.emit("message", json.dumps(msg), namespace=f"/game/{lobby.code}")
+
+def id_5(lobby: Lobby) -> None:
+    """
+    Switch to scoreboard
+    """
+    msg = {"id":5, "lobby_code":lobby.code}
+    write_socket_log(msg)
+    socketio.emit("message", json.dumps(msg), namespace="/game/{lobby.code}")
+
+@socketio.on('message')
+def handle_message(data_raw):
+    data = json.loads(str(data_raw)) # Convert to json
+
+
+    game: Optional[Game] = gs.get_game_by_code(data["lobby_code"])
+    lobby: Optional[Lobby] = gs.get_lobby_by_code(data["lobby_code"])
+    
+    if game is None or lobby is None: return
+
+    if (data["id"] == 3):
+        write_socket_log(data)
+        print("id 3")
+        if data["question_index"] != game.current_question: return
+        player: Optional[Player] = gs.get_player_by_username(str(decode_token(data["auth_token"])["username"]))
+        if player == None: return
+        game.answer(player, data["answer"])
+        
+        if not game.next_question() and game.all_answered() and game.current_question == (len(game.questions)-1):
+            id_5(lobby)
+
+    if (data["id"] == 4):
+        write_socket_log(data)
+        id_2(lobby, game.current_question, game.questions[game.current_question])
