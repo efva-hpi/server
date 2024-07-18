@@ -12,8 +12,10 @@
             Spiel {{lobbyCode}}
         </h1>
         <script src="../static/game.js"></script>
+        <div id="answerDisplay" style="font-size: 30px;"></div>
         <h3><span id="questionIndexSpan"></span>: <span id="currentQuestionSpan"></span> </h3>
         <div id="answerButtonsDiv"></div>
+        
 
     </body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.1/js.cookie.min.js">
@@ -25,6 +27,7 @@
             const questionIndexSpan = document.getElementById('questionIndexSpan');
             const currentQuestionSpan = document.getElementById('currentQuestionSpan');
             const answerButtonsDiv = document.getElementById('answerButtonsDiv');
+            const answerDisplay = document.getElementById('answerDisplay')
 
             // Constants
             const currentLobbyCode = window.location.href.slice(-6);
@@ -87,6 +90,12 @@
                         const scoreboardUrl = `${currentUrl}scoreboard/${currentLobbyCode}`;
                         console.log(scoreboardUrl);
                         window.location.href = scoreboardUrl;
+                        break;
+                    case 6:
+                        console.log("Player update");
+                        let text = jsonResponse["actual"] + "/" + jsonResponse["all"];
+                        console.log(text)
+                        answerDisplay.innerText = text;
                         break;
                     default:
                         goToHome()

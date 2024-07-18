@@ -5,6 +5,7 @@ New question:   {"id" : 2, "question_index" : 0, "question" : "Was los?", "answe
 Submit answers: {"id" : 3, "auth_token" : "...", "question_index" : 0, "answer" : 4, "lobby_code" : "ABC143"}
 Get Question:   {"id" : 4, "auth_token" : "...", "lobby_code" : "HFG749"}
 End Game:       {"id" : 5, "lobby_code" : "ABC123"}
+Player update:  {"id" : 6, "actual" : 0, "all": 6, "lobby_code":"JFH296"}
 """
 
 from crypt import methods
@@ -133,7 +134,7 @@ def start_game(code):
     #if (len(lobby.get_players()) < 2): 
     #    return redirect(f"/lobby/{code}") # Not enough players
 
-    gs.start_game(gs.get_id(code), id_2, id_5)
+    gs.start_game(gs.get_id(code), id_2, id_5, id_6)
 
     game: Optional[Game] = gs.get_game_by_code(code)
 
@@ -273,6 +274,9 @@ def id_2(lobby: Lobby, question_index: int, question: Question) -> None:
     write_socket_log(msg)
     socketio.emit("message", json.dumps(msg), namespace="")
 
+    game: Optional[Game] = gs.get_game_by_code(lobby.code)
+    id_6(lobby, game)
+
 def id_5(lobby: Lobby) -> None:
     """
     Switch to scoreboard
@@ -280,6 +284,15 @@ def id_5(lobby: Lobby) -> None:
     msg = {"id":5, "lobby_code":lobby.code}
     write_socket_log(msg)
     socketio.emit("message", json.dumps(msg), namespace="")
+
+def id_6(lobby: Lobby, game: Game,) -> None:
+    """
+    Update the number of players who have answered a question
+    """
+    msg = {"id":6, "actual":game.get_players_answered(), "all":len(game.player_list), "lobby_code":lobby.code}
+    write_socket_log(msg)
+    socketio.emit("message", json.dumps(msg), namespace="")
+    
 
 @socketio.on('message')
 def handle_message(data_raw):
