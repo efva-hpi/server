@@ -19,5 +19,3 @@ COPY app.py spiellogik.py wsgi.py login.py uwsgi.ini ./
 COPY Datenbankverbindung/ ./Datenbankverbindung/
 COPY static/ ./static/
 COPY templates/ ./templates/
-
-RUN --mount=type=cache,target=/root/.cache/pip pip install uwsgi get-docker-secret

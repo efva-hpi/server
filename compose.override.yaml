@@ -14,7 +14,7 @@ services:
     ports:
       - 3000:3000
     stop_signal: SIGINT
-    entrypoint: [ "flask", "run", "--debug", "-p 3000", "--host=0.0.0.0" ]
+    entrypoint: ["uwsgi", "dev-uwsgi.ini"]
 
 
 volumes:

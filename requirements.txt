@@ -7,3 +7,4 @@ PyJWT~=2.8.0
 Flask-SocketIO~=5.3.6
 gevent~=24.2.1
 get-docker-secret
+uwsgi
