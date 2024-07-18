@@ -79,10 +79,12 @@ class Game:
         """
         Calculates the points using the answer and time to answer.
         """
+        write_send_log([question_time, answer_time])
         if (question_time is None or answer_time is None): raise Exception("Time is none")
         if question_time > answer_time: raise Exception("Invalid time")
 
-        time_taken_seconds = (answer_time - question_time) / 10e6  # time is measured in ns
+        time_taken_seconds = (answer_time - question_time) / 1e+9  # time is measured in ns
+        write_send_log(time_taken_seconds)
         max_time = self.game_settings.max_time_question
 
         if time_taken_seconds > max_time: return 0  # answer was too late
