@@ -58,6 +58,11 @@
                 console.log('Received message:', response);
                 const jsonResponse = JSON.parse(response);
                 console.log(jsonResponse);
+                const currentLobbyCode = href.slice(-6);
+                if(jsonResponse['lobby_code'] != currentLobbyCode) {
+                    console.log("not equal");
+                    return;
+                }
                 switch (jsonResponse['id']) {
                     case 0:
                         // Spielerliste
@@ -74,7 +79,6 @@
                     case 1:
                         // Spiel starten
                         const currentUrl= href.slice(0, -12);
-                        const currentLobbyCode = href.slice(-6);
                         const gameUrl= `${currentUrl}game/${currentLobbyCode}`;
                         console.log("CurrentUrl ", currentUrl);
                         console.log("CurrentLobbyCode ", currentLobbyCode);
