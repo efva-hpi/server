@@ -4,7 +4,7 @@ from time import time, sleep, time_ns
 import copy
 from typing import Optional
 import requests
-import json
+from html import unescape
 import threading
 
 def write_send_log(data):
@@ -204,9 +204,9 @@ class Game:
         questions = []
         for q in r["results"]:
             pos = randint(0, 3)
-            answers = q["incorrect_answers"]
-            answers.insert(pos, q["correct_answer"])
-            questions.append(Question(q["question"], q["category"], answers, pos))
+            answers = [unescape(incorrect) for incorrect in q["incorrect_answers"]]
+            answers.insert(pos, unescape(q["correct_answer"]))
+            questions.append(Question(unescape(q["question"]), unescape(q["category"]), answers, pos))
         return questions
 
     def all_answered(self) -> bool:
